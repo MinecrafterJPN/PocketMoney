@@ -10,11 +10,11 @@ class=PocketMoney
 apiversion=9
 */
 
-define("DEFAULT_MONEY", 500);
-
 class PocketMoney implements Plugin
 {
 	private $api, $path;
+	
+	const DEFAULT_MONEY = 500;
 
 	public function __construct(ServerAPI $api, $server = false)
 	{
@@ -42,7 +42,7 @@ class PocketMoney implements Plugin
 				{
 					$this->api->plugin->createConfig($this,array(
 							$target => array(
-									'money' => DEFAULT_MONEY
+									'money' => self::DEFAULT_MONEY
 							)
 					));
 					$this->api->chat->broadcast("[PocketMoney]$target has been registered.");
