@@ -4,7 +4,7 @@
  __PocketMine Plugin__
 name=PocketMoney
 description=PocketMoney introduces economy into your PocketMine world.
-version=1.7.2
+version=1.8
 author=MinecrafterJPN
 class=PocketMoney
 apiversion=9
