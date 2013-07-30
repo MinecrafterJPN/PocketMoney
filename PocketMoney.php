@@ -40,6 +40,7 @@ class PocketMoney implements Plugin
 					$this->config->set($target, array('money' => self::DEFAULT_MONEY));
 					$this->api->chat->broadcast("[PocketMoney] $target has been registered");
 				}
+				$this->config->save();
 				break;
 			case "money.handle":
 				if(!isset($data['username']) or !isset($data['method']) or !isset($data['amount']) or !is_numeric($data['amount'])) return false;
@@ -72,6 +73,7 @@ class PocketMoney implements Plugin
 						'amount' => $amount
 				)
 				);
+				$this->config->save();
 				return true;
 			case "money.player.get":
 				if ($this->config->exists($data['username'])) {
@@ -120,6 +122,7 @@ class PocketMoney implements Plugin
 								'amount' => $amount
 						)
 						);
+						$this->config->save();
 						break;
 					case "grant":
 						$target = $args[1];
@@ -147,6 +150,7 @@ class PocketMoney implements Plugin
 								'amount' => $amount
 						)
 						);
+						$this->config->save();
 						break;
 					case "top":
 						$amount = $args[1];
@@ -235,6 +239,7 @@ class PocketMoney implements Plugin
 								'amount' => $amount
 						)
 						);
+						$this->config->save();
 						break;
 					case "top":
 						$amount = $args[1];
