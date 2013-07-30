@@ -44,7 +44,7 @@ class PocketMoney implements Plugin
 				break;
 			case "money.handle":
 				if(!isset($data['username']) or !isset($data['method']) or !isset($data['amount']) or !is_numeric($data['amount'])) return false;
-				$issuer = isset($data['issuer']) ? $data['issuer'] : "External";
+				$issuer = isset($data['issuer']) ? $data['issuer'] : "external";
 				$target = $data['username'];
 				$method = $data['method'];
 				$amount = $data['amount'];
