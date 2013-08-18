@@ -12,7 +12,7 @@ apiversion=9
 
 class PocketMoney implements Plugin
 {
-	private $api, $config, $path;
+	private $api, $config;
 
 	const DEFAULT_MONEY = 500;
 
@@ -28,7 +28,6 @@ class PocketMoney implements Plugin
 		$this->api->addHandler("money.handle", array($this, "eventHandler"));
 		$this->api->addHandler("money.player.get", array($this, "eventHandler"));
 		$this->api->console->register("money", "PocketMoney command", array($this, "commandHandler"));
-		$this->path = $this->api->plugin->createConfig($this, array());
 	}
 
 	public function eventHandler($data, $event)
