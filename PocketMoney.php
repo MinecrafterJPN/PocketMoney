@@ -7,7 +7,7 @@ description=PocketMoney introduces economy into your PocketMine world.
 version=1.8
 author=MinecrafterJPN
 class=PocketMoney
-apiversion=9
+apiversion=10
 */
 
 class PocketMoney implements Plugin
