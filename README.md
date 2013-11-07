@@ -11,8 +11,11 @@ PocketMoney is the PocketMine-MP plugin which provides economic system for your 
 | Command | Parameter | Description |
 | :-----: | :-------: | :---------: |
 | /money help | `None` | Show help |
+| /money create | `<accountname>` | Open account |
 | /money set | `<target>` `<amount>` | Set `<target>`'s money at `<amount>` |
 | /money grant | `<target>` `<amount>` | Grant `<amount>` to `<target>` |
+| /money top | `<amount>` | Show the ranking up to `<amount>` |
+| /money stat | `None` | Show current economy state (circulation, average money, number of account) |
 
 # Chat commands
 
@@ -20,6 +23,7 @@ PocketMoney is the PocketMine-MP plugin which provides economic system for your 
 | :-----: | :-------: | :---------: |
 | /money | `None` | Show your money |
 | /money help | `None` | Show help |
+| /money create | `<accountname>` | Open account |
 | /money top | `<amount>` | Show the ranking up to `<amount>` |
 | /money pay | `<target>` `<amount>` | Pay `<target>` `<amount>` |
 | /money stat | `None` | Show current economy state (circulation, average money, number of account) |
@@ -53,19 +57,15 @@ $money = $this->api->dhandle("money.player.get", $data);
 
 ----
 
-You can get information in detail when money is changed by coding as follow.
-
-```php
-$this->api->addHandler("money.changed", array($this, "yourEventHandler"));
-```
+You can open an account by coding as follow.
 
 ```php
 $data = array(
-  'issuer' => string Issuer('console', username or the classname which use "money.handle"),
-  'target' => string Target,
-  'method' => string Method('set', 'grant' or 'pay'),
-  'amount' => integer Amount
+  'account' => string account name
 );
+
+$this->api->dhandle("money.create.account", $data);
 ```
+
 
 
