@@ -23,7 +23,7 @@ PocketMoney is the PocketMine-MP plugin which provides economic system for your 
 | :-----: | :-------: | :---------: |
 | /money | `None` | Show your money |
 | /money help | `None` | Show help |
-| /money create | `<accountname>` | Open account |
+| /money create | `<accountname>` | Open non-player account |
 | /money top | `<amount>` | Show the ranking up to `<amount>` |
 | /money pay | `<target>` `<amount>` | Pay `<target>` `<amount>` |
 | /money stat | `None` | Show current economy state (circulation, average money, number of account) |
@@ -57,7 +57,7 @@ $money = $this->api->dhandle("money.player.get", $data);
 
 ----
 
-You can open an account by coding as follow.
+You can open non-player account by coding as follow.
 
 ```php
 $data = array(
