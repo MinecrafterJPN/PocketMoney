@@ -18,7 +18,6 @@ PocketMoney is the PocketMine-MP plugin which provides economic system for your 
 | /money grant | `<target>` `<amount>` | Grant `<amount>` to `<target>` |
 | /money top | `<amount>` | Show the ranking up to `<amount>` |
 | /money stat | `None` | Show current economy state (circulation, average money, number of account) |
-| /money optimizeconfig | `None` | Optimize the config file of PocketMoney ver2.0 or earlier |
 
 # Chat commands
 
@@ -46,7 +45,6 @@ $data = array(
 );
 
 $this->api->dhandle("money.handle", $data);
-//Return true when the process done correctly.
 ```
 
 ----
@@ -68,11 +66,10 @@ You can open non-player account by coding as follow.
 ```php
 $data = array(
   'account' => string account name,
-  'hide' => int hidden flag, for example, if you want to hide, the value is 1. If not, the value is 0;
+  'hide' => boolean hidden, for example, if you want to hide, the value is "true"
 );
 
 $this->api->dhandle("money.create.account", $data);
-//Return true when the process done correctly.
 ```
 
 
