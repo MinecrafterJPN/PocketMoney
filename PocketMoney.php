@@ -4,7 +4,7 @@
  __PocketMine Plugin__
 name=PocketMoney
 description=PocketMoney introduces economy into your PocketMine world.
-version=2.1
+version=2.1.1
 author=MinecrafterJPN
 class=PocketMoney
 apiversion=10
@@ -255,7 +255,7 @@ class PocketMoney implements Plugin
 							$output .= "[PocketMoney] Cannot pay yourself!";
 							break;
 						}
-						if (!$this->config->exist($target)) {
+						if (!$this->config->exists($target)) {
 							$output .= "[PocketMoney] The account name dose not exist";
 							break;
 						}
@@ -269,7 +269,7 @@ class PocketMoney implements Plugin
 						$targetMoney += $amount;
 						$payerMoney -= $amount;
 						$this->config->set($target, array_merge($this->config->get($target), array('money' => $targetMoney)));
-						$this->config->set($payer, array_merge($this->config->get($target), array('money' => $payerMoney)));
+						$this->config->set($payer, array_merge($this->config->get($payer), array('money' => $payerMoney)));
 						$output .= "[PocketMoney][pay] Done!";
 						$this->api->chat->sendTo(false, "[PocketMoney] $payer -> you: $amount PM", $target);
 						$this->config->save();
