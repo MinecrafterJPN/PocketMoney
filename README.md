@@ -66,7 +66,7 @@ You can open non-player account by coding as follow.
 ```php
 $data = array(
   'account' => string account name,
-  'hide' => boolean hidden, for example, if you want to hide, the value is "true"
+  'hide' => int hidden flag, for example, if you want to hide, the value is 1. If not, 0.
 );
 
 $this->api->dhandle("money.create.account", $data);
