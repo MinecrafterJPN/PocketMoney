@@ -46,6 +46,7 @@ $data = array(
 );
 
 $this->api->dhandle("money.handle", $data);
+//Return true when the process done correctly.
 ```
 
 ----
@@ -71,6 +72,7 @@ $data = array(
 );
 
 $this->api->dhandle("money.create.account", $data);
+//Return true when the process done correctly.
 ```
 
 
