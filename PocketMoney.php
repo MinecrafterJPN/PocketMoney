@@ -381,10 +381,10 @@ class PocketMoney implements Plugin
 	private function optimizeConfigFile()
 	{
 		foreach ($this->config->getAll() as $key => $val) {
-			if (array_key_exists("type", $val)) {
+			if (!array_key_exists("type", $val)) {
 				$this->config->set($key, array_merge($this->config->get($key), array('type' => self::TYPE_PLAYER)));
 			}
-			if (array_key_exists("hide", $val)) {
+			if (!array_key_exists("hide", $val)) {
 				$this->config->set($key, array_merge($this->config->get($key), array('hide' => 0)));
 			}
 		}
