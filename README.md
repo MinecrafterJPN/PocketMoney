@@ -33,7 +33,7 @@ PocketMoney is the PocketMine-MP plugin which provides economic system for your 
 | /money pay | `<target>` `<amount>` | Pay `<target>` `<amount>` |
 | /money stat | `None` | Show current economy state (circulation, average money, number of account) |
 
-# For developers
+# For developers(Deprectaed)
 
 You can handle data of PocketMoney by coding as follow.
 
