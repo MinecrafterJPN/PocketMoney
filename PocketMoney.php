@@ -395,22 +395,47 @@ class PocketMoney implements Plugin
 
 	public static function setMoney($playerName, $amount)
 	{
-
+		if ($playerName instanceOf Player) {
+			$playerName = $playerName->username;
+		}
+		if (!$this->config->exists($playerName) or !is_numeric($amount) or $amount < 0) return false;
+		$this->config->set($playerName, array_merge($this->config->get($playerName), array('money' => $amount)));
+		$this->config->save();
+		return true;
 	}
 
 	public static function grantMoney($playerName, $amount)
 	{
-
+		if ($playerName instanceOf Player) {
+			$playerName = $playerName->username;
+		}
+		if (!$this->config->exists($playerName) or !is_numeric($amount)) return false;
+		$targetMoney = $this->config->get($playerName)['money'] + $amount;
+		if($targetMoney < 0) return false;
+		$this->config->set($playerName, array_merge($this->config->get($playerName), array('money' => $targetMoney)));
+		$this->config->save();
+		return true;
 	}
 
 	public static function getMoney($playerName)
 	{
-
+		if ($playerName instanceOf Player) {
+			$playerName = $playerName->username;
+		}
+		if ($this->config->exists($playerName)) {
+			return $this->config->get($playerName)['money'];
+		} else {
+			return false;
+		}
 	}
 
-	public static function createAccount($accountName)
+	public static function createAccount($accountName, $hide = false)
 	{
-		
+		if ($this->config->exist($accountName)) return false;
+		$hideFlag = $hide === true ? 1 : 0;
+		$this->config->set($account, array('money' => self::DEFAULT_MONEY, 'type' => self::TYPE_NON_PLAYER, 'hide' => $hideFlag));
+		$this->config->save();
+		return true;
 	}
 
 	public function __destruct()
