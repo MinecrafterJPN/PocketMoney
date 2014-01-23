@@ -28,9 +28,12 @@ class PocketMoney implements Plugin
 		$this->config = new Config($this->api->plugin->configPath($this) . "config.yml", CONFIG_YAML);
 		$this->tmp = new Config($this->api->plugin->configPath($this) . "tmp.yml", CONFIG_YAML, array("optimized" => 0));
 		$this->api->addHandler("player.join", array($this, "eventHandler"));
+
+		//Deprecated
 		$this->api->addHandler("money.handle", array($this, "eventHandler"));
 		$this->api->addHandler("money.player.get", array($this, "eventHandler"));
 		$this->api->addHandler("money.create.account", array($this, "eventHandler"));
+
 		$this->api->console->register("money", "PocketMoney master command", array($this, "commandHandler"));
 		if (!$this->tmp->get("optimized")) $this->optimizeConfigFile();
 	}
@@ -46,6 +49,8 @@ class PocketMoney implements Plugin
 					$this->config->save();
 				}
 				break;
+				
+			//Deprecated
 			case "money.handle":
 				if(!isset($data['username']) or !isset($data['method']) or !isset($data['amount']) or !is_numeric($data['amount'])) return false;
 				$target = $data['username'];
