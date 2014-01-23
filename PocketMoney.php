@@ -4,10 +4,10 @@
  __PocketMine Plugin__
 name=PocketMoney
 description=PocketMoney introduces economy into your PocketMine world.
-version=2.1.1
+version=2.2
 author=MinecrafterJPN
 class=PocketMoney
-apiversion=10
+apiversion=11
 */
 
 class PocketMoney implements Plugin
@@ -391,6 +391,26 @@ class PocketMoney implements Plugin
 		$this->config->save();
 		$this->tmp->set("optimized", 1);
 		$this->tmp->save();
+	}
+
+	public static function setMoney($playerName, $amount)
+	{
+
+	}
+
+	public static function grantMoney($playerName, $amount)
+	{
+
+	}
+
+	public static function getMoney($playerName)
+	{
+
+	}
+
+	public static function createAccount($accountName)
+	{
+		
 	}
 
 	public function __destruct()
