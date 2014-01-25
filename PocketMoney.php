@@ -12,9 +12,9 @@ apiversion=11
 
 class PocketMoney implements Plugin
 {
-	private $api, $config, $tmp;
+	public $defaultMoney;
+	private $api, $config, $system;
 
-	const DEFAULT_MONEY = 500;
 	const TYPE_PLAYER = 0;
 	const TYPE_NON_PLAYER = 1;
 
@@ -26,16 +26,16 @@ class PocketMoney implements Plugin
 	public function init()
 	{
 		$this->config = new Config($this->api->plugin->configPath($this) . "config.yml", CONFIG_YAML);
-		$this->tmp = new Config($this->api->plugin->configPath($this) . "tmp.yml", CONFIG_YAML, array("optimized" => 0));
+		$this->system = new Config($this->api->plugin->configPath($this) . "system.yml", CONFIG_YAML, array("optimized" => false, "default_money" => 500));
 		$this->api->addHandler("player.join", array($this, "eventHandler"));
-
-		//Deprecated
 		$this->api->addHandler("money.handle", array($this, "eventHandler"));
 		$this->api->addHandler("money.player.get", array($this, "eventHandler"));
 		$this->api->addHandler("money.create.account", array($this, "eventHandler"));
 
 		$this->api->console->register("money", "PocketMoney master command", array($this, "commandHandler"));
-		if (!$this->tmp->get("optimized")) $this->optimizeConfigFile();
+		if (!$this->system->get("optimized")) $this->optimizeConfigFile();
+
+		$this->defaultMoney = $this->system->get("default_money");
 	}
 
 	public function eventHandler($data, $event)
@@ -44,13 +44,11 @@ class PocketMoney implements Plugin
 			case "player.join":
 				$target = $data->username;
 				if (!$this->config->exists($target)) {
-					$this->config->set($target, array('money' => self::DEFAULT_MONEY, 'type' => self::TYPE_PLAYER, 'hide' => 0));
+					$this->config->set($target, array('money' => $this->defaultMoney, 'type' => self::TYPE_PLAYER, 'hide' => false));
 					$this->api->chat->broadcast("[PocketMoney] $target has been registered");
 					$this->config->save();
 				}
 				break;
-				
-			//Deprecated
 			case "money.handle":
 				if(!isset($data['username']) or !isset($data['method']) or !isset($data['amount']) or !is_numeric($data['amount'])) return false;
 				$target = $data['username'];
@@ -86,10 +84,10 @@ class PocketMoney implements Plugin
 				if ($this->config->exist($account)) {
 					return false;
 				}
-				if ($hide !== 0 and $hide !== 1) {
+				if ($hide !== true and $hide !== false) {
 					return false;
 				}
-				$this->config->set($account, array('money' => self::DEFAULT_MONEY, 'type' => self::TYPE_NON_PLAYER, 'hide' => $hide));
+				$this->config->set($account, array('money' => $this->defaultMoney, 'type' => self::TYPE_NON_PLAYER, 'hide' => $hide));
 				$this->config->save();
 				return true;
 		}
@@ -128,11 +126,15 @@ class PocketMoney implements Plugin
 						break;
 					case "create":
 						$account = $args[1];
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money create <account>");
+							break;
+						}
 						if ($this->config->exists($account)) {
 							console("[PocketMoney] The account name already exists");
 							break;
 						}
-						$this->config->set($account, array('money' => self::DEFAULT_MONEY, 'type' => self::TYPE_NON_PLAYER, 'hide' => 0));
+						$this->config->set($account, array('money' => $this->defaultMoney, 'type' => self::TYPE_NON_PLAYER, 'hide' => false));
 						$this->config->save();
 						console("[PocketMoney] Opening of $account has been completed");
 						break;
@@ -150,7 +152,7 @@ class PocketMoney implements Plugin
 							console("[PocketMoney] You can hide only Non-player account");
 							break;
 						}
-						$this->config->set($account, array_merge($this->config->get($account), array('hide' => 1)));
+						$this->config->set($account, array_merge($this->config->get($account), array('hide' => true)));
 						$this->config->save();
 						console("[PocketMoney] Hiding of $account has been completed");
 						break;
@@ -298,11 +300,12 @@ class PocketMoney implements Plugin
 							$output .= "[PocketMoney] The account name already exists.";
 							break;
 						}
-						$this->config->set($account, array('money' => self::DEFAULT_MONEY, 'type' => self::TYPE_NON_PLAYER, 'hide' => 0));
+						$this->config->set($account, array('money' => $this->defaultMoney, 'type' => self::TYPE_NON_PLAYER, 'hide' => 0));
 						$this->config->save();
 						$output .= "[PocketMoney] Opening of $account has been completed";
 						break;
 					case "wd":
+					case "withdraw":
 						$account = $args[1];
 						$amount = $args[2];
 						if (!$this->config->exists($account)) {
@@ -390,12 +393,15 @@ class PocketMoney implements Plugin
 				$this->config->set($key, array_merge($this->config->get($key), array('type' => self::TYPE_PLAYER)));
 			}
 			if (!array_key_exists("hide", $val)) {
-				$this->config->set($key, array_merge($this->config->get($key), array('hide' => 0)));
+				$this->config->set($key, array_merge($this->config->get($key), array('hide' => false)));
+			} elseif ($val["hide"] !== true and $val["hide"] !== false) {
+				$hideFlag = $val["hide"] === 0 ? false : true;
+				$this->config->set($key, array_merge($this->config->get($key), array('hide' => $hideFlag)));
 			}
 		}
 		$this->config->save();
-		$this->tmp->set("optimized", 1);
-		$this->tmp->save();
+		$this->system->set("optimized", true);
+		$this->system->save();
 	}
 
 	public static function setMoney($playerName, $amount)
@@ -403,10 +409,10 @@ class PocketMoney implements Plugin
 		if ($playerName instanceOf Player) {
 			$playerName = $playerName->username;
 		}
-		if (!$this->config->exists($playerName) or !is_numeric($amount) or $amount < 0) return false;
-		$this->config->set($playerName, array_merge($this->config->get($playerName), array('money' => $amount)));
-		$this->config->save();
-		return true;
+		return ServerAPI::request()->api->dhandle("money.handle", array(
+			"username" => $playerName,
+			"method" => "set",
+			"amount" => $amount));
 	}
 
 	public static function grantMoney($playerName, $amount)
@@ -414,12 +420,10 @@ class PocketMoney implements Plugin
 		if ($playerName instanceOf Player) {
 			$playerName = $playerName->username;
 		}
-		if (!$this->config->exists($playerName) or !is_numeric($amount)) return false;
-		$targetMoney = $this->config->get($playerName)['money'] + $amount;
-		if($targetMoney < 0) return false;
-		$this->config->set($playerName, array_merge($this->config->get($playerName), array('money' => $targetMoney)));
-		$this->config->save();
-		return true;
+		return ServerAPI::request()->api->dhandle("money.handle", array(
+			"username" => $playerName,
+			"method" => "grant",
+			"amount" => $amount));
 	}
 
 	public static function getMoney($playerName)
@@ -427,25 +431,21 @@ class PocketMoney implements Plugin
 		if ($playerName instanceOf Player) {
 			$playerName = $playerName->username;
 		}
-		if ($this->config->exists($playerName)) {
-			return $this->config->get($playerName)['money'];
-		} else {
-			return false;
-		}
+		return ServerAPI::request()->api->dhandle("money.player.get", array(
+			"username" => $playerName));		
 	}
 
 	public static function createAccount($accountName, $hide = false)
 	{
-		if ($this->config->exist($accountName)) return false;
 		$hideFlag = $hide === true ? 1 : 0;
-		$this->config->set($account, array('money' => self::DEFAULT_MONEY, 'type' => self::TYPE_NON_PLAYER, 'hide' => $hideFlag));
-		$this->config->save();
-		return true;
+		return ServerAPI::request()->api->dhandle("money.create.account", array(
+			"account" => $accountName,
+			"hide" => $hideFlag));
 	}
 
 	public function __destruct()
 	{
 		$this->config->save();
-		$this->tmp->save();
+		$this->system->save();
 	}
 }
