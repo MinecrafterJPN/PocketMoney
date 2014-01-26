@@ -3,7 +3,7 @@
 /*
  __PocketMine Plugin__
 name=PocketMoney
-description=PocketMoney introduces economy into your PocketMine world.
+description=PocketMoney is the foundation of money system
 version=2.2
 author=MinecrafterJPN
 class=PocketMoney
@@ -49,6 +49,8 @@ class PocketMoney implements Plugin
 					$this->config->save();
 				}
 				break;
+
+			//Should be used by only this plugin
 			case "money.handle":
 				if(!isset($data['username']) or !isset($data['method']) or !isset($data['amount']) or !is_numeric($data['amount'])) return false;
 				$target = $data['username'];
@@ -65,7 +67,7 @@ class PocketMoney implements Plugin
 						break;
 					case "grant":
 						$targetMoney = $this->config->get($target)['money'] + $amount;
-						if($targetMoney < 0) return false;
+						if ($targetMoney < 0) return false;
 						$this->config->set($target, array_merge($this->config->get($target), array('money' => $targetMoney)));
 						$this->config->save();
 						break;
@@ -105,24 +107,29 @@ class PocketMoney implements Plugin
 				switch ($subCommand) {
 					case "":
 					case "help":
-						console("[PocketMoney]/money help( or /money )");
-						console("[PocketMoney]/money view <account>");
-						console("[PocketMoney]/money create <account>");
-						console("[PocketMoney]/money hide <account>");
-						console("[PocketMoney]/money set <target> <amount>");
-						console("[PocketMoney]/money grant <target> <amount>");
-						console("[PocketMoney]/money top <amount>");
-						console("[PocketMoney]/money stat");
+						console("[PocketMoney] /money help( or /money )");
+						console("[PocketMoney] /money view <account>");
+						console("[PocketMoney] /money create <account>");
+						console("[PocketMoney] /money hide <account>");						
+						console("[PocketMoney] /money unhide <account>");
+						console("[PocketMoney] /money set <target> <amount>");
+						console("[PocketMoney] /money grant <target> <amount>");
+						console("[PocketMoney] /money top <amount>");
+						console("[PocketMoney] /money stat");
 						break;
 					case "view":
 						$account = $args[1];
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money view <account>");
+							break;
+						}
 						if (!$this->config->exists($account)) {
-							console("[PocketMoney] The account name dose not exist");
+							console("[PocketMoney] The account dose not exist");
 							break;
 						}
 						$money = $this->config->get($account)['money'];
 						$type = $this->config->get($account)['type'] === self::TYPE_PLAYER ? "Player" : "Non-player";
-						console("[PocketMoney] $account money:$money PM, type:$type");
+						console("[PocketMoney] \"{$account}\" money:$money PM, type:$type");
 						break;
 					case "create":
 						$account = $args[1];
@@ -131,17 +138,21 @@ class PocketMoney implements Plugin
 							break;
 						}
 						if ($this->config->exists($account)) {
-							console("[PocketMoney] The account name already exists");
+							console("[PocketMoney] The account already exists");
 							break;
 						}
 						$this->config->set($account, array('money' => $this->defaultMoney, 'type' => self::TYPE_NON_PLAYER, 'hide' => false));
 						$this->config->save();
-						console("[PocketMoney] Opening of $account has been completed");
+						console("[PocketMoney] \"{$account}\" was created");
 						break;
 					case "hide":
 						$acount = $args[1];
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money hide <account>");
+							break;
+						}
 						if (!$this->config->exists($account)) {
-							console("[PocketMoney] The account name dose not exist");
+							console("[PocketMoney] The account dose not exist");
 							break;
 						}
 						if ($this->config->get($account)['hide']) {
@@ -154,13 +165,35 @@ class PocketMoney implements Plugin
 						}
 						$this->config->set($account, array_merge($this->config->get($account), array('hide' => true)));
 						$this->config->save();
-						console("[PocketMoney] Hiding of $account has been completed");
+						console("[PocketMoney] \"{$account}\" was hidden");
+						break;
+					case "unhide":
+						$acount = $args[1];
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money unhide <account>");
+							break;
+						}
+						if (!$this->config->exists($account)) {
+							console("[PocketMoney] The account dose not exist");
+							break;
+						}
+						if (!$this->config->get($account)['hide']) {
+							console("[PocketMoney] The account has not been hidden");
+							break;
+						}
+						$this->config->set($account, array_merge($this->config->get($account), array('hide' => false)));
+						$this->config->save();
+						console("[PocketMoney] \"{$account}\" was unhidden");
 						break;
 					case "set":
 						$target = $args[1];
 						$amount = $args[2];
+						if (empty($account) or empty($amount)) {
+							console("[PocketMoney] Usage: /money set <target> <amount>");
+							break;
+						}
 						if (!$this->config->exists($target)) {
-							console("[PocketMoney] The account name dose not exist");
+							console("[PocketMoney] The account dose not exist");
 							break;
 						}
 						if (!is_numeric($amount) or $amount < 0) {
@@ -173,12 +206,16 @@ class PocketMoney implements Plugin
 						$this->config->save();
 						break;
 					case "grant":
-						$target = $args[1];
-						if (!$this->config->exists($target)) {
-							console("[PocketMoney] The account name dose not exist");
+						$target = $args[1];						
+						$amount = $args[2];
+						if (empty($account) or empty($amount)) {
+							console("[PocketMoney] Usage: /money grant <target> <amount>");
 							break;
 						}
-						$amount = $args[2];
+						if (!$this->config->exists($target)) {
+							console("[PocketMoney] The account dose not exist");
+							break;
+						}
 						$targetMoney = $this->config->get($target)['money'] + $amount;
 						if (!is_numeric($amount) or $targetMoney < 0) {
 							console("[PocketMoney] Invalid amount.");
@@ -191,6 +228,10 @@ class PocketMoney implements Plugin
 						break;
 					case "top":
 						$amount = $args[1];
+						if (empty($amount)) {
+							console("[PocketMoney] Usage: /money top <amount>");
+							break;
+						}
 						$temp = array();
 						foreach ($this->config->getAll() as $name => $value) {
 							if (!$value['hide']) {
@@ -235,40 +276,45 @@ class PocketMoney implements Plugin
 		switch ($cmd) {
 			case "money":
 				if ($this->config->get($issuer->username)['type'] !== self::TYPE_PLAYER) {
-					$output .= "[PocketMoney][Error] Change your username or you can not use PocketMoney function";
+					$output .= "[PocketMoney][Error] Change your username or you can not use PocketMoney commands";
 					break;
 				}
-				$subCommand = $args[0];
+				$subCommand = strtolower($args[0]);
 				switch ($subCommand) {
 					case "":
 						$money = $this->config->get($issuer->username)['money'];
 						$output .= "[PocketMoney] $money PM";
 						break;
 					case "help":
-						$output .= "[PocketMoney]/money\n";
-						$output .= "[PocketMoney]/money help\n";
-						$output .= "[PocketMoney]/money pay <target> <amount>\n";
-						$output .= "[PocketMoney]/money view <account>\n";
-						$output .= "[PocketMoney]/money create <account>\n";
-						$output .= "[PocketMoney]/money wd <account> <amount>\n";
-						$output .= "[PocketMoney]/money hide <account>\n";
-						$output .= "[PocketMoney]/money top <amount>\n";
-						$output .= "[PocketMoney]/money stat\n";
+						$output .= "[PocketMoney] /money\n";
+						$output .= "[PocketMoney] /money help\n";
+						$output .= "[PocketMoney] /money pay <target> <amount>\n";
+						$output .= "[PocketMoney] /money view <account>\n";
+						$output .= "[PocketMoney] /money create <account>\n";
+						$output .= "[PocketMoney] /money wd <account> <amount>\n";
+						$output .= "[PocketMoney] /money hide <account>\n";
+						$output .= "[PocketMoney] /money unhide <account>\n";
+						$output .= "[PocketMoney] /money top <amount>\n";
+						$output .= "[PocketMoney] /money stat\n";
 						break;
 					case "pay":
 						$target = $args[1];
+						$amount = $args[2];
+						if (empty($target) or empty($amount)) {
+							console("[PocketMoney] Usage: /money pay <target> <amount>");
+							break;
+						}
 						$payer = $issuer->username;
 						if ($target === $payer) {
 							$output .= "[PocketMoney] Cannot pay yourself!";
 							break;
 						}
 						if (!$this->config->exists($target)) {
-							$output .= "[PocketMoney] The account name dose not exist";
+							$output .= "[PocketMoney] The account dose not exist";
 							break;
 						}
 						$targetMoney = $this->config->get($target)['money'];
 						$payerMoney = $this->config->get($payer)['money'];
-						$amount = $args[2];
 						if (!is_numeric($amount) or $amount < 0 or $amount > $payerMoney) {
 							$output .= "[PocketMoney] Invalid amount";
 							break;
@@ -283,8 +329,12 @@ class PocketMoney implements Plugin
 						break;
 					case "view":
 						$account = $args[1];
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money view <target>");
+							break;
+						}
 						if (!$this->config->exists($account)) {
-							$output .= "[PocketMoney] The account name dose not exist";
+							$output .= "[PocketMoney] The account dose not exist";
 							break;
 						}
 						if ($this->config->get($account)['type'] !== self::TYPE_NON_PLAYER) {
@@ -292,24 +342,32 @@ class PocketMoney implements Plugin
 							break;
 						}
 						$money = $this->config->get($account)['money'];
-						$output .= "[PocketMoney] $account money: $money PM";
+						$output .= "[PocketMoney] \"{$account}\" money: $money PM";
 						break;
 					case "create":
 						$account = $args[1];
-						if ($this->config->exists($account)) {
-							$output .= "[PocketMoney] The account name already exists.";
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money create <account>");
 							break;
 						}
-						$this->config->set($account, array('money' => $this->defaultMoney, 'type' => self::TYPE_NON_PLAYER, 'hide' => 0));
+						if ($this->config->exists($account)) {
+							$output .= "[PocketMoney] The account already exists.";
+							break;
+						}
+						$this->config->set($account, array('money' => $this->defaultMoney, 'type' => self::TYPE_NON_PLAYER, 'hide' => false));
 						$this->config->save();
-						$output .= "[PocketMoney] Opening of $account has been completed";
+						$output .= "[PocketMoney] \"{$account}\" was created";
 						break;
 					case "wd":
 					case "withdraw":
 						$account = $args[1];
 						$amount = $args[2];
+						if (empty($account) or empty($amount)) {
+							console("[PocketMoney] Usage: /money wd <account> <amount>");
+							break;
+						}
 						if (!$this->config->exists($account)) {
-							$output .= "[PocketMoney] The account name dose not exist";
+							$output .= "[PocketMoney] The account dose not exist";
 							break;
 						}
 						if ($this->config->get($account)['type'] !== self::TYPE_NON_PLAYER) {
@@ -330,8 +388,12 @@ class PocketMoney implements Plugin
 						break;
 					case "hide":
 						$acount = $args[1];
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money hide <account>");
+							break;
+						}
 						if (!$this->config->exists($account)) {
-							$output .= "[PocketMoney] The account name dose not exist";
+							$output .= "[PocketMoney] The account dose not exist";
 							break;
 						}
 						if ($this->config->get($account)['hide']) {
@@ -342,12 +404,34 @@ class PocketMoney implements Plugin
 							$output .= "[PocketMoney] You can hide only Non-player account";
 							break;
 						}
-						$this->config->set($account, array_merge($this->config->get($account), array('hide' => 1)));
+						$this->config->set($account, array_merge($this->config->get($account), array('hide' => true)));
 						$this->config->save();
-						$output .= "[PocketMoney] Hiding of $account has been completed";
+						$output .= "[PocketMoney] \"{$account}\" was hidden";
+						break;
+					case "unhide":
+						$acount = $args[1];
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money unhide <account>");
+							break;
+						}
+						if (!$this->config->exists($account)) {
+							$output .= "[PocketMoney] The account dose not exist";
+							break;
+						}
+						if (!$this->config->get($account)['hide']) {
+							$output .= "[PocketMoney] The account has not been hidden";
+							break;
+						}
+						$this->config->set($account, array_merge($this->config->get($account), array('hide' => false)));
+						$this->config->save();
+						$output .= "[PocketMoney] \"{$account}\" was unhidden";
 						break;
 					case "top":
 						$amount = $args[1];
+						if (empty($account)) {
+							console("[PocketMoney] Usage: /money top <amount>");
+							break;
+						}
 						$temp = array();
 						foreach ($this->config->getAll() as $name => $value) {
 							if (!$value['hide']) {
@@ -437,10 +521,9 @@ class PocketMoney implements Plugin
 
 	public static function createAccount($accountName, $hide = false)
 	{
-		$hideFlag = $hide === true ? 1 : 0;
 		return ServerAPI::request()->api->dhandle("money.create.account", array(
 			"account" => $accountName,
-			"hide" => $hideFlag));
+			"hide" => $hide));
 	}
 
 	public function __destruct()
