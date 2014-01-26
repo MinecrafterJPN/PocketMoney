@@ -35,6 +35,10 @@ PocketMoney is the PocketMine-MP plugin which provides economic system for your 
 | /money pay | `<target>` `<amount>` | Pay `<target>` `<amount>` |
 | /money stat | `None` | Show current economy state (circulation, average money, number of account) |
 
+# Tips
+
+You can change the value of default money by rewriting system.yml
+
 # For developers
 
 You can "set" money of selected player or non-player account by coding as follow.
