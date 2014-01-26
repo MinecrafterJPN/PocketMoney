@@ -4,7 +4,7 @@
  __PocketMine Plugin__
 name=PocketMoney
 description=PocketMoney is the foundation of money system for PocketMine
-version=2.2
+version=2.2.1
 author=MinecrafterJPN
 class=PocketMoney
 apiversion=11
@@ -83,7 +83,7 @@ class PocketMoney implements Plugin
 				if(!isset($data['account']) or !isset($data['hide'])) return false;
 				$account = $data['account'];
 				$hide = $data['hide'];
-				if ($this->config->exist($account)) {
+				if ($this->config->exists($account)) {
 					return false;
 				}
 				if ($hide !== true and $hide !== false) {
