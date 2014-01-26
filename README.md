@@ -1,6 +1,6 @@
 # PocketMoney
 
-PocketMoney is the PocketMine-MP plugin which provides economic system for your worlds.
+PocketMoney is the foundation of money system
 
 # Installation
 1.  Drop it into your /plugins folder.
