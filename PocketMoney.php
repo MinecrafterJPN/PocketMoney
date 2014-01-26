@@ -3,7 +3,7 @@
 /*
  __PocketMine Plugin__
 name=PocketMoney
-description=PocketMoney is the foundation of money system
+description=PocketMoney is the foundation of money system for PocketMine
 version=2.2
 author=MinecrafterJPN
 class=PocketMoney
@@ -488,35 +488,35 @@ class PocketMoney implements Plugin
 		$this->system->save();
 	}
 
-	public static function setMoney($playerName, $amount)
+	public static function setMoney($accountName, $amount)
 	{
-		if ($playerName instanceOf Player) {
-			$playerName = $playerName->username;
+		if ($accountName instanceOf Player) {
+			$accountName = $accountName->username;
 		}
 		return ServerAPI::request()->api->dhandle("money.handle", array(
-			"username" => $playerName,
+			"username" => $accountName,
 			"method" => "set",
 			"amount" => $amount));
 	}
 
-	public static function grantMoney($playerName, $amount)
+	public static function grantMoney($accountName, $amount)
 	{
-		if ($playerName instanceOf Player) {
-			$playerName = $playerName->username;
+		if ($accountName instanceOf Player) {
+			$accountName = $accountName->username;
 		}
 		return ServerAPI::request()->api->dhandle("money.handle", array(
-			"username" => $playerName,
+			"username" => $accountName,
 			"method" => "grant",
 			"amount" => $amount));
 	}
 
-	public static function getMoney($playerName)
+	public static function getMoney($accountName)
 	{
-		if ($playerName instanceOf Player) {
-			$playerName = $playerName->username;
+		if ($accountName instanceOf Player) {
+			$accountName = $accountName->username;
 		}
 		return ServerAPI::request()->api->dhandle("money.player.get", array(
-			"username" => $playerName));		
+			"username" => $accountName));		
 	}
 
 	public static function createAccount($accountName, $hide = false)
