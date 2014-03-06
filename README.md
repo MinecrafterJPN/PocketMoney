@@ -1,6 +1,6 @@
 # PocketMoney
 
-PocketMoney is the foundation of money system for PocketMine
+PocketMoney is the foundation of money system for PocketMine.
 
 # Installation
 1.  Drop it into your /plugins folder.
