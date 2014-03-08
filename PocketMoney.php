@@ -4,7 +4,7 @@
  __PocketMine Plugin__
 name=PocketMoney
 description=PocketMoney is the foundation of money system for PocketMine
-version=2.2.1
+version=2.2.2
 author=MinecrafterJPN
 class=PocketMoney
 apiversion=12
