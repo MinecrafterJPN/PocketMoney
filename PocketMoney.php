@@ -200,9 +200,9 @@ class PocketMoney implements Plugin
 							console("[PocketMoney] Invalid amount");
 							break;
 						}
-						$this->config->set($target, array_merge($this->config->get($target), array('money' => $amount)));
+						self::setMoney($target, $amount);
 						console("[PocketMoney][set] Done!");
-						$this->api->chat->sendTo(false, "[PocketMoney][set] Your money was changed to $amount PM by admin", $target);
+						$this->api->chat->sendTo(false, "[PocketMoney][INFO] Your money was changed to $amount PM by admin", $target);
 						$this->config->save();
 						break;
 					case "grant":
@@ -223,7 +223,7 @@ class PocketMoney implements Plugin
 						}
 						self::grantMoney($target, $amount);
 						console("[PocketMoney][grant] Done!");
-						$this->api->chat->sendTo(false, "[PocketMoney][INFO]Your are granted $amount PM by admin", $target);
+						$this->api->chat->sendTo(false, "[PocketMoney][INFO]You are granted $amount PM by admin", $target);
 						$this->config->save();
 						break;
 					case "top":
