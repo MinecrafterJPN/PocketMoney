@@ -7,7 +7,7 @@ description=PocketMoney is the foundation of money system for PocketMine
 version=2.2.1
 author=MinecrafterJPN
 class=PocketMoney
-apiversion=11
+apiversion=12
 */
 
 class PocketMoney implements Plugin
@@ -32,7 +32,7 @@ class PocketMoney implements Plugin
 		$this->api->addHandler("money.player.get", array($this, "eventHandler"));
 		$this->api->addHandler("money.create.account", array($this, "eventHandler"));
 
-		$this->api->console->register("money", "PocketMoney master command", array($this, "commandHandler"));
+		$this->api->console->register("money", "PocketMoney command", array($this, "commandHandler"));
 		if (!$this->system->get("optimized")) $this->optimizeConfigFile();
 
 		$this->defaultMoney = $this->system->get("default_money");
@@ -118,8 +118,8 @@ class PocketMoney implements Plugin
 						console("[PocketMoney] /money stat");
 						break;
 					case "view":
-						$account = $args[1];
-						if (empty($account)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						if ($account === false) {
 							console("[PocketMoney] Usage: /money view <account>");
 							break;
 						}
@@ -132,8 +132,8 @@ class PocketMoney implements Plugin
 						console("[PocketMoney] \"{$account}\" money:$money PM, type:$type");
 						break;
 					case "create":
-						$account = $args[1];
-						if (empty($account)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						if ($account === false) {
 							console("[PocketMoney] Usage: /money create <account>");
 							break;
 						}
@@ -146,8 +146,8 @@ class PocketMoney implements Plugin
 						console("[PocketMoney] \"{$account}\" was created");
 						break;
 					case "hide":
-						$acount = $args[1];
-						if (empty($account)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						if ($account === false) {
 							console("[PocketMoney] Usage: /money hide <account>");
 							break;
 						}
@@ -168,8 +168,8 @@ class PocketMoney implements Plugin
 						console("[PocketMoney] \"{$account}\" was hidden");
 						break;
 					case "unhide":
-						$acount = $args[1];
-						if (empty($account)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						if ($account === false) {
 							console("[PocketMoney] Usage: /money unhide <account>");
 							break;
 						}
@@ -186,9 +186,9 @@ class PocketMoney implements Plugin
 						console("[PocketMoney] \"{$account}\" was unhidden");
 						break;
 					case "set":
-						$target = $args[1];
-						$amount = $args[2];
-						if (empty($account) or empty($amount)) {
+						$target = isset($args[1]) ? $args[1] : false;						
+						$amount = isset($args[2]) ? $args[2] : false;
+						if ($target === false or $amount === false) {
 							console("[PocketMoney] Usage: /money set <target> <amount>");
 							break;
 						}
@@ -206,9 +206,9 @@ class PocketMoney implements Plugin
 						$this->config->save();
 						break;
 					case "grant":
-						$target = $args[1];						
-						$amount = $args[2];
-						if (empty($account) or empty($amount)) {
+						$target = isset($args[1]) ? $args[1] : false;						
+						$amount = isset($args[2]) ? $args[2] : false;
+						if ($target === false or $amount === false) {
 							console("[PocketMoney] Usage: /money grant <target> <amount>");
 							break;
 						}
@@ -216,19 +216,19 @@ class PocketMoney implements Plugin
 							console("[PocketMoney] The account dose not exist");
 							break;
 						}
-						$targetMoney = $this->config->get($target)['money'] + $amount;
-						if (!is_numeric($amount) or $targetMoney < 0) {
+						$targetMoney = $this->config->get($target)['money'];
+						if (!is_numeric($amount) or ($targetMoney + $amount) < 0) {
 							console("[PocketMoney] Invalid amount.");
 							break;
 						}
-						$this->config->set($target, array_merge($this->config->get($target), array('money' => $targetMoney)));
+						self::grantMoney($target, $amount);
 						console("[PocketMoney][grant] Done!");
-						$this->api->chat->sendTo(false, "[INFO][grant]Your money was changed to $targetMoney PM by admin", $target);
+						$this->api->chat->sendTo(false, "[PocketMoney][INFO]Your are granted $amount PM by admin", $target);
 						$this->config->save();
 						break;
 					case "top":
-						$amount = $args[1];
-						if (empty($amount)) {
+						$amount = isset($args[1]) ? $args[1] : false;
+						if ($amount === false) {
 							console("[PocketMoney] Usage: /money top <amount>");
 							break;
 						}
@@ -298,9 +298,9 @@ class PocketMoney implements Plugin
 						$output .= "[PocketMoney] /money stat\n";
 						break;
 					case "pay":
-						$target = $args[1];
-						$amount = $args[2];
-						if (empty($target) or empty($amount)) {
+						$target = isset($args[1]) ? $args[1] : false;
+						$amount = isset($args[2]) ? $args[2] : false;
+						if ($target === false or $amount === false) {
 							console("[PocketMoney] Usage: /money pay <target> <amount>");
 							break;
 						}
@@ -328,8 +328,8 @@ class PocketMoney implements Plugin
 						$this->config->save();
 						break;
 					case "view":
-						$account = $args[1];
-						if (empty($account)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						if ($account === false) {
 							console("[PocketMoney] Usage: /money view <target>");
 							break;
 						}
@@ -345,8 +345,8 @@ class PocketMoney implements Plugin
 						$output .= "[PocketMoney] \"{$account}\" money: $money PM";
 						break;
 					case "create":
-						$account = $args[1];
-						if (empty($account)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						if ($account === false) {
 							console("[PocketMoney] Usage: /money create <account>");
 							break;
 						}
@@ -360,9 +360,9 @@ class PocketMoney implements Plugin
 						break;
 					case "wd":
 					case "withdraw":
-						$account = $args[1];
-						$amount = $args[2];
-						if (empty($account) or empty($amount)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						$amount = isset($args[2]) ? $args[2] : false;
+						if ($account === false or $amount === false) {
 							console("[PocketMoney] Usage: /money wd <account> <amount>");
 							break;
 						}
@@ -387,8 +387,8 @@ class PocketMoney implements Plugin
 						$output .= "[PocketMoney] $account -> you: $amount PM";
 						break;
 					case "hide":
-						$acount = $args[1];
-						if (empty($account)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						if ($account === false) {
 							console("[PocketMoney] Usage: /money hide <account>");
 							break;
 						}
@@ -409,8 +409,8 @@ class PocketMoney implements Plugin
 						$output .= "[PocketMoney] \"{$account}\" was hidden";
 						break;
 					case "unhide":
-						$acount = $args[1];
-						if (empty($account)) {
+						$account = isset($args[1]) ? $args[1] : false;
+						if ($account === false) {
 							console("[PocketMoney] Usage: /money unhide <account>");
 							break;
 						}
@@ -427,8 +427,8 @@ class PocketMoney implements Plugin
 						$output .= "[PocketMoney] \"{$account}\" was unhidden";
 						break;
 					case "top":
-						$amount = $args[1];
-						if (empty($account)) {
+						$amount = isset($args[1]) ? $args[1] : false;
+						if ($amount === false) {
 							console("[PocketMoney] Usage: /money top <amount>");
 							break;
 						}
