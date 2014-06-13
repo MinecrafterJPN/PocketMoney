@@ -1,6 +1,6 @@
 <?php
 
-namespace PocketMoney;
+namespace PocketMoney\constants;
 
 class PlayerType
 {
