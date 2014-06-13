@@ -9,13 +9,16 @@ use pocketmine\command\CommandSender;
 
 class PocketMoney extends PluginBase
 {
+	private $system;
+
 	public function onLoad()
 	{
-		
 	}
 
 	public function onEnable()
 	{
+		$this->system = new Config($this->dataFolder."system.yml", Config::YAML, array("default_money" => 500));
+		define(POCKETMONEY_DEFAULT_MONEY, (int)$this->system->get("default_money"));
     }
 
 	public function onDisable()
@@ -44,7 +47,7 @@ class PocketMoney extends PluginBase
 					
 					case "view":
 						$account = array_shift($args);
-						if (!$account) {
+						if (is_null($account)) {
 							$sender->sendMessage("[PocketMoney] Usage: /money view <account>");
 							break;
 						}
@@ -55,6 +58,21 @@ class PocketMoney extends PluginBase
 						$money = $this->config->get($account)['money'];
 						$type = $this->config->get($account)['type'] === self::TYPE_PLAYER ? "Player" : "Non-player";
 						$sender->sendMessage("[PocketMoney] \"$account\" money:$money PM, type:$type");
+						break;
+
+					case "create":
+						$account = array_shift($args);
+						if (is_null($account)) {
+							$sender->sendMessage("[PocketMoney] Usage: /money create <account>");
+							break;
+						}
+						if ($this->config->exists($account)) {
+							$sender->sendMessage("[PocketMoney] The account already exists");
+							break;
+						}
+						$this->config->set($account, array('money' => POCKETMONEY_DEFAULT_MONEY, 'type' => self::TYPE_NON_PLAYER, 'hide' => false));
+						$this->config->save();
+						console("[PocketMoney] \"{$account}\" was created");
 						break;
 
 					default:
