@@ -56,7 +56,7 @@ class PocketMoney extends PluginBase
 							break;
 						}
 						$money = $this->config->get($account)['money'];
-						$type = $this->config->get($account)['type'] === self::TYPE_PLAYER ? "Player" : "Non-player";
+						$type = $this->config->get($account)['type'] === PlayerType::Player ? "Player" : "Non-player";
 						$sender->sendMessage("[PocketMoney] \"$account\" money:$money PM, type:$type");
 						break;
 
@@ -70,9 +70,32 @@ class PocketMoney extends PluginBase
 							$sender->sendMessage("[PocketMoney] The account already exists");
 							break;
 						}
-						$this->config->set($account, array('money' => POCKETMONEY_DEFAULT_MONEY, 'type' => self::TYPE_NON_PLAYER, 'hide' => false));
+						$this->config->set($account, array('money' => POCKETMONEY_DEFAULT_MONEY, 'type' => PlayerType::NonPlayer, 'hide' => false));
 						$this->config->save();
 						console("[PocketMoney] \"{$account}\" was created");
+						break;
+
+					case "hide":
+						$account = array_shift($args);
+						if (is_null($account)) {
+							$sender->sendMessage("[PocketMoney] Usage: /money hide <account>");
+							break;
+						}
+						if (!$this->config->exists($account)) {
+							$sender->sendMessage("[PocketMoney] The account dose not exist");
+							break;
+						}
+						if ($this->config->get($account)['hide']) {
+							$sender->sendMessage("[PocketMoney] The account has already been hidden");
+							break;
+						}
+						if ($this->config->get($account)['type'] !== PlayerType::NonPlayer) {
+							$sender->sendMessage("[PocketMoney] You can hide only Non-player account");
+							break;
+						}
+						$this->config->set($account, array_merge($this->config->get($account), array('hide' => true)));
+						$this->config->save();
+						$sender->sendMessage("[PocketMoney] \"{$account}\" was hidden");
 						break;
 
 					default:
