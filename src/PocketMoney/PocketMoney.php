@@ -98,6 +98,25 @@ class PocketMoney extends PluginBase
 						$sender->sendMessage("[PocketMoney] \"{$account}\" was hidden");
 						break;
 
+					case "unhide":
+						$account = array_shift($args);
+						if (is_null($account)) {
+							$sender->sendMessage("[PocketMoney] Usage: /money unhide <account>");
+							break;
+						}
+						if (!$this->config->exists($account)) {
+							$sender->sendMessage("[PocketMoney] The account dose not exist");
+							break;
+						}
+						if (!$this->config->get($account)['hide']) {
+							$sender->sendMessage("[PocketMoney] The account has not been hidden");
+							break;
+						}
+						$this->config->set($account, array_merge($this->config->get($account), array('hide' => false)));
+						$this->config->save();
+						console("[PocketMoney] \"$account\" was unhidden");
+						break;
+
 					default:
 						# code...
 						break;
