@@ -43,7 +43,18 @@ class PocketMoney extends PluginBase
 						break;
 					
 					case "view":
-						
+						$account = array_shift($args);
+						if (!$account) {
+							$sender->sendMessage("[PocketMoney] Usage: /money view <account>");
+							break;
+						}
+						if (!$this->config->exists($account)) {
+							$sender->sendMessage("[PocketMoney] The account dose not exist");
+							break;
+						}
+						$money = $this->config->get($account)['money'];
+						$type = $this->config->get($account)['type'] === self::TYPE_PLAYER ? "Player" : "Non-player";
+						$sender->sendMessage("[PocketMoney] \"$account\" money:$money PM, type:$type");
 						break;
 
 					default:
