@@ -2,35 +2,66 @@
 
 namespace PocketMoney;
 
+use pocketmine\Server;
+use pocketmine\utils\Config;
+
+
 class PocketMoneyAPI
 {
 
-	private static $configRef = null;
-	private static $systemRef = null;
+	private static $api = null;
+	private $config, $system;
 
-	public static function init(&$configRef, &$systemRef)
+	private function __construct()
 	{
-		self::configReference = $configRef;
-		self::systemRef = $systemRef;
+		$this->config = new Config(Server::getInstance()->getPluginManager()->getPlugin("PocketMoney")->getDataFolder()."config.yml");
+		$this->config = new Config(Server::getInstance()->getPluginManager()->getPlugin("PocketMoney")->getDataFolder()."system.yml");
+		
 	}
 
-	public static function getMoney($account)
+	public static function getAPI()
+	{
+		if (is_null(self::$api)) {
+			self::$api = new self;
+		}
+
+		return self::$api;
+	}
+
+	public function getDefaultMoney()
+	{
+		return $this->system->get("default_money");
+	}
+
+	public function getMoney($account)
 	{
 		
 	}
 
-	public static function getType($account)
+	public function getType($account)
 	{
 
 	}
 
-	public static function setMoney($target, $amount)
+	public function setMoney($target, $amount)
 	{
 
 	}
 
-	public static function grantMoney($target, $amoutn)
+	public function grantMoney($target, $amoutn)
 	{
 
+	}
+
+	public function hideAccount($account)
+	{
+		$this->config->set($account, array('hide' => true));
+		$this->config->save();
+	}
+
+	public function unhideAccount($account)
+	{
+		$this->config->set($account, array('hide' => false));
+		$this->config->save();
 	}
 }
