@@ -5,7 +5,8 @@ namespace PocketMoney;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 
-use PocketMoney\
+use PocketMoney\constants\PlayerType;
+use PocketMoney\constants\SimpleError;
 
 class PocketMoneyAPI
 {
@@ -17,11 +18,9 @@ class PocketMoneyAPI
 	{
 		$this->config = new Config(Server::getInstance()->getPluginManager()->getPlugin("PocketMoney")->getDataFolder()."config.yml");
 		$this->config = new Config(Server::getInstance()->getPluginManager()->getPlugin("PocketMoney")->getDataFolder()."system.yml");
-		
 	}
 
 	/**
-	 * get API instance
 	 * @return PocketMoneyAPI
 	 */
 	public static function getAPI()
@@ -33,50 +32,113 @@ class PocketMoneyAPI
 		return self::$api;
 	}
 
-	/**
-	 * get default money
-	 * @return int
-	 */
-	public function getDefaultMoney()
+    /**
+     * @return int
+     */
+    public function getDefaultMoney()
 	{
-		return $this->system->get("default_money");
+		return $this->config->get("default_money");
 	}
 
-	/**
-	 * get money of account
-	 * @param  string $account
-	 * @return int
-	 */
-	public function getMoney($account)
-	{	
-		$this->getType()
-		
-	}
-
-	public function getType($account)
+    /**
+     * @param string $account
+     */
+    public function getMoney($account)
 	{
-
+        if (!$this->config->exists($account)) return ErrorCode::AccountNotExist;
+        return $this->config->get($account)['money'];
 	}
 
-	public function setMoney($target, $amount)
+    /**
+     * @param string $account
+     * @return PlayerType
+     */
+    public function getType($account)
 	{
-
+        return $this->config->get($account)['type'];
 	}
 
-	public function grantMoney($target, $amoutn)
+    public function payMoney($sender, $receiver, $amount)
+    {
+        $this->grantMoney($sender, -$amount);
+        $this->grantMoney($receiver, +$amount);
+    }
+
+    /**
+     * @param string $account
+     * @param int $amount
+     */
+    public function setMoney($account, $amount)
 	{
-
+        $this->config->set($account, array_merge($this->config->get($account), array("money" => $amount)));
+        $this->config->save();
 	}
 
-	public function hideAccount($account)
+    /**
+     * @param string $account
+     * @param int $amount
+     */
+    public function grantMoney($account, $amount)
 	{
-		$this->config->set($account, array('hide' => true));
-		$this->config->save();
+        $this->config->set($account, array_merge($this->config->get($account), array("money" => $this->config->get($account)['money'] + $amount)));
+	    $this->config->save();
+    }
+
+    /**
+     * @param string $account
+     */
+    public function hideAccount($account)
+	{
+        $this->config->set($account, array_merge($this->config->get($account), array('hide' => true)));
+        $this->config->save();
 	}
 
+    /**
+     * @param string $account
+     */
 	public function unhideAccount($account)
 	{
-		$this->config->set($account, array('hide' => false));
-		$this->config->save();
+        $this->config->set($account, array_merge($this->config->get($account), array('hide' => false)));
+        $this->config->save();
 	}
+
+    /**
+     * @return int
+     */
+    public function getNumberOfAccount()
+    {
+        return count($this->config->getAll());
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalMoney()
+    {
+        $sum = 0;
+        foreach ($this->config->getAll() as $account) {
+            $sum += $account['money'];
+        }
+        return $sum;
+    }
+
+    /**
+     * @param string $account
+     * @param PlayerType $type
+     * @param bool $hide
+     * @param bool|int $money
+     */
+    public function createAccount($account, PlayerType $type, $hide = false, $money = false)
+    {
+        $money = ($money === false ? $this->getDefaultMoney() : $money);
+        $this->config->set($account, array("money" => $money, "type" => $type, "hide" => $hide));
+    }
+
+    /**
+     * @param string $account
+     */
+    public function deleteAccount($account)
+    {
+        $this->config->remove($account);
+    }
 }

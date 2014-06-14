@@ -4,6 +4,6 @@ namespace PocketMoney\constants;
 
 class PlayerType
 {
+	const Player = 0;
 	const NonPlayer = 1;
-	const Player = 2;
 }
