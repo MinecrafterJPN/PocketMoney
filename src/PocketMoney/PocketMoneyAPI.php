@@ -6,7 +6,7 @@ use pocketmine\Server;
 use pocketmine\utils\Config;
 
 use PocketMoney\constants\PlayerType;
-use PocketMoney\constants\SimpleError;
+use PocketMoney\Error\SimpleError;
 
 class PocketMoneyAPI
 {
