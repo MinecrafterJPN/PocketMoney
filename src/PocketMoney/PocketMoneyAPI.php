@@ -5,6 +5,7 @@ namespace PocketMoney;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 
+use PocketMoney\
 
 class PocketMoneyAPI
 {
@@ -19,6 +20,10 @@ class PocketMoneyAPI
 		
 	}
 
+	/**
+	 * get API instance
+	 * @return PocketMoneyAPI
+	 */
 	public static function getAPI()
 	{
 		if (is_null(self::$api)) {
@@ -28,13 +33,23 @@ class PocketMoneyAPI
 		return self::$api;
 	}
 
+	/**
+	 * get default money
+	 * @return int
+	 */
 	public function getDefaultMoney()
 	{
 		return $this->system->get("default_money");
 	}
 
+	/**
+	 * get money of account
+	 * @param  string $account
+	 * @return int
+	 */
 	public function getMoney($account)
-	{
+	{	
+		$this->getType()
 		
 	}
 
