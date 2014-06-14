@@ -1,6 +1,6 @@
 <?php
 
-namespace PocketMoney\constants;
+namespace PocketMoney\Error;
 
 class SimpleError
 {
