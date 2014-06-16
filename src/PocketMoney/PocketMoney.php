@@ -7,20 +7,18 @@ use pocketmine\utils\Config;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
+use PocketMoney\Error\SimpleError;
 use PocketMoney\PocketMoneyAPI;
 use PocketMoney\constants\PlayerType;
 
 class PocketMoney extends PluginBase
 {
-	private $pocketMoneyAPI;
-
 	public function onLoad()
 	{
 	}
 
 	public function onEnable()
 	{
-		$this->pocketMoneyAPI = PocketMoneyAPI::getAPI();
     }
 
 	public function onDisable()
@@ -36,171 +34,130 @@ class PocketMoney extends PluginBase
 				switch ($subCommand) {
 					case "":
 					case "help":
-						$sender->sendMessage("[PocketMoney] /money help( or /money )");
-						$sender->sendMessage("[PocketMoney] /money view <account>");
-						$sender->sendMessage("[PocketMoney] /money create <account>");
-						$sender->sendMessage("[PocketMoney] /money hide <account>");
-						$sender->sendMessage("[PocketMoney] /money unhide <account>");
-						$sender->sendMessage("[PocketMoney] /money set <target> <amount>");
-						$sender->sendMessage("[PocketMoney] /money grant <target> <amount>");
-						$sender->sendMessage("[PocketMoney] /money top <amount>");
-						$sender->sendMessage("[PocketMoney] /money stat");
+						$sender->sendMessage("/money help( or /money )");
+						$sender->sendMessage("/money view <account>");
+						$sender->sendMessage("/money create <account>");
+						$sender->sendMessage("/money hide <account>");
+						$sender->sendMessage("/money unhide <account>");
+						$sender->sendMessage("/money set <target> <amount>");
+						$sender->sendMessage("/money grant <target> <amount>");
+						$sender->sendMessage("/money top <amount>");
+						$sender->sendMessage("/money stat");
 						break;
 					
 					case "view":
 						$account = array_shift($args);
 						if (is_null($account)) {
-							$sender->sendMessage("[PocketMoney] Usage: /money view <account>");
+							$sender->sendMessage("Usage: /money view <account>");
 							break;
 						}
-						if (!$this->config->exists($account)) {
-							$sender->sendMessage("[PocketMoney] The account dose not exist");
+
+                        $money = PocketMoneyAPI::getAPI()->getMoney($account);
+                        $type = PocketMoneyAPI::getAPI()->getType($account);
+						if ($money instanceof SimpleError) {
+							$sender->sendMessage($money->getDescription());
 							break;
 						}
-						$money = $this->pocketMoneyAPI->getMoney($account);
-						$type =  $this->pocketMoneyAPI->getType($account) === PlayerType::Player ? "Player" : "Non-player";
+                        if ($type instanceof SimpleError) {
+                            $sender->sendMessage($type->getDescription());
+                            break;
+                        }
+						$type =  ($type === PlayerType::Player) ? "Player" : "Non-player";
 						$sender->sendMessage("[PocketMoney] \"$account\" money:$money PM, type:$type");
 						break;
 
 					case "create":
 						$account = array_shift($args);
 						if (is_null($account)) {
-							$sender->sendMessage("[PocketMoney] Usage: /money create <account>");
+							$sender->sendMessage("Usage: /money create <account>");
 							break;
 						}
-						if ($this->config->exists($account)) {
-							$sender->sendMessage("[PocketMoney] The account already exists");
-							break;
-						}
-						$this->config->set($account, array('money' => POCKETMONEY_DEFAULT_MONEY, 'type' => PlayerType::NonPlayer, 'hide' => false));
-						$this->config->save();
-						console("[PocketMoney] \"{$account}\" was created");
+                        if (($err = PocketMoneyAPI::getAPI()->createAccount($account)) instanceof SimpleError) {
+                            $sender->sendMessage($err->getDescription());
+                            break;
+                        }
+                        $sender->sendMessage(" \"{$account}\" was created");
 						break;
 
 					case "hide":
 						$account = array_shift($args);
 						if (is_null($account)) {
-							$sender->sendMessage("[PocketMoney] Usage: /money hide <account>");
+							$sender->sendMessage("Usage: /money hide <account>");
 							break;
 						}
-						if (!$this->config->exists($account)) {
-							$sender->sendMessage("[PocketMoney] The account dose not exist");
-							break;
-						}
-						if ($this->config->get($account)['hide']) {
-							$sender->sendMessage("[PocketMoney] The account has already been hidden");
-							break;
-						}
-						if ($this->config->get($account)['type'] !== PlayerType::NonPlayer) {
-							$sender->sendMessage("[PocketMoney] You can hide only Non-player account");
-							break;
-						}
-						$this->config->set($account, array_merge($this->config->get($account), array('hide' => true)));
-						$this->config->save();
-						$sender->sendMessage("[PocketMoney] \"{$account}\" was hidden");
+                        if (($err = PocketMoneyAPI::getAPI()->hideAccount($account)) instanceof SimpleError) {
+                            $sender->sendMessage($err->getDescription());
+                            break;
+                        }
+						$sender->sendMessage("\"{$account}\" was hidden");
 						break;
 
 					case "unhide":
 						$account = array_shift($args);
 						if (is_null($account)) {
-							$sender->sendMessage("[PocketMoney] Usage: /money unhide <account>");
+							$sender->sendMessage("Usage: /money unhide <account>");
 							break;
 						}
-						if (!$this->config->exists($account)) {
-							$sender->sendMessage("[PocketMoney] The account dose not exist");
-							break;
-						}
-						if (!$this->config->get($account)['hide']) {
-							$sender->sendMessage("[PocketMoney] The account has not been hidden");
-							break;
-						}
-						$this->config->set($account, array_merge($this->config->get($account), array('hide' => false)));
-						$this->config->save();
-						console("[PocketMoney] \"$account\" was unhidden");
+                        if (($err = PocketMoneyAPI::getAPI()->unhideAccount($account)) instanceof SimpleError) {
+                            $sender->sendMessage($err->getDescription());
+                            break;
+                        }
+                        $sender->sendMessage("\"{$account}\" was hidden");
 						break;
 
 					case "set":
 						$target = array_shift($args);						
 						$amount = array_shift($args);
 						if (is_null($target) or is_null($amount)) {
-							$sender->sendMessage("[PocketMoney] Usage: /money set <target> <amount>");
+							$sender->sendMessage("Usage: /money set <target> <amount>");
 							break;
 						}
-						if (!$this->config->exists($target)) {
-							$sender->sendMessage("[PocketMoney] The account dose not exist");
-							break;
-						}
-						if (!is_numeric($amount) or $amount < 0) {
-							$sender->sendMessage("[PocketMoney] Invalid amount");
-							break;
-						}
-						//TODO
-						PocketMoneyAPI::setMoney($target, $amount);
+                        if (($err = PocketMoneyAPI::getAPI()->setMoney($target, $amount)) instanceof SimpleError) {
+                            $sender->sendMessage($err->getDescription());
+                            break;
+                        }
 						$sender->sendMessage("[PocketMoney][set] Done!");
-						$this->getServer()->getPlayer($target)->sendMessage("[PocketMoney][INFO] Your money was changed to $amount PM by admin");
-						$this->config->save();
+						$this->getServer()->getPlayer($target)->sendMessage("Your money was changed to $amount PM by admin");
 						break;
 
 					case "grant":
 						$target = array_shift($args);						
 						$amount = array_shift($args);
 						if (is_null($target) or is_null($amount)) {
-							$sender->sendMessage("[PocketMoney] Usage: /money grant <target> <amount>");
+							$sender->sendMessage("Usage: /money grant <target> <amount>");
 							break;
 						}
-						if (!$this->config->exists($target)) {
-							$sender->sendMessage("[PocketMoney] The account dose not exist");
-							break;
-						}
-						$targetMoney = $this->config->get($target)['money'];
-						if (!is_numeric($amount) or ($targetMoney + $amount) < 0) {
-							$sender->sendMessage("[PocketMoney] Invalid amount.");
-							break;
-						}
-						PocketMoneyAPI::grantMoney($target, $amount);
-						self::grantMoney($target, $amount);
-						console("[PocketMoney][grant] Done!");
-						$this->api->chat->sendTo(false, "[PocketMoney][INFO]You are granted $amount PM by admin", $target);
-						$this->config->save();
-						break;
+                        if (($err = PocketMoneyAPI::getAPI()->grantMoney($target, $amount)) instanceof SimpleError) {
+                            $sender->sendMessage($err->getDescription());
+                            break;
+                        }
+                        $sender->sendMessage("[grant] Done!");
+                        $this->getServer()->getPlayer($target)->sendMessage("Your money was changed to $amount PM by admin");
+                        break;
 						
 					case "top":
-						$amount = isset($args[1]) ? $args[1] : false;
-						if ($amount === false) {
-							console("[PocketMoney] Usage: /money top <amount>");
+						$amount = array_shift($args);
+                        if (is_null($amount)) {
+                            $sender->sendMessage("Usage: /money top <amount>");
 							break;
 						}
-						$temp = array();
-						foreach ($this->config->getAll() as $name => $value) {
-							if (!$value['hide']) {
-								$temp[$name] = $value['money'];
-							}
-						}
-						arsort($temp);
-						$i = 1;
-						console("[PocketMoney] Millionaires");
-						console("===========================");
-						foreach ($temp as $name => $money) {
-							if ($i > $amount) {
-								break;
-							}
-							console("#$i : $name $money PM");
-							$i++;
+                        $sender->sendMessage("[PocketMoney] Millionaires");
+                        $sender->sendMessage("===========================");
+                        $rank = 1;
+						foreach (PocketMoneyAPI::getAPI()->getRanking($amount) as $name => $money) {
+                            $sender->sendMessage("#$rank : $name $money PM");
+							$rank++;
 						}
 						break;
 					case "stat":
-						$total = 0;
-						$num = 0;
-						foreach ($cfg as $k => $value) {
-							$total += $value['money'];
-							$num++;
-						}
-						$avr = floor($total / $num);
-						console("[PocketMoney] Circulation:$total Average:$avr Accounts:$num");
+						$totalMoney = PocketMoneyAPI::getAPI()->getTotalMoney();
+                        $accountNum = PocketMoneyAPI::getAPI()->getNumberOfAccount();
+						$avr = floor($totalMoney / $accountNum);
+                        $sender->sendMessage("[PocketMoney] Circulation:$totalMoney Average:$avr Accounts:$accountNum");
 						break;
 
 					default:
-						# code...
+                        $sender->sendMessage("\"/money $subCommand\" dose not exist");
 						break;
 				}
 				return true;
