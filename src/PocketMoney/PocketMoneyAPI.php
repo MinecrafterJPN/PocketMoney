@@ -12,6 +12,7 @@ use PocketMoney\Error\SimpleError;
 class PocketMoneyAPI
 {
 	private static $api = null;
+    private static $initialized = false;
 	private $users, $system;
 
 	private function __construct()
@@ -25,6 +26,17 @@ class PocketMoneyAPI
         $this->users->save();
         $this->system->save();
 	}
+
+    /**
+     * TODO
+     */
+    public static function init()
+    {
+        if (is_null(self::$api)) {
+            self::$api = new self;
+        }
+    }
+
 
 	/**
 	 * @return self
