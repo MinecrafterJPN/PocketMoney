@@ -12,7 +12,6 @@ use PocketMoney\Error\SimpleError;
 class PocketMoneyAPI
 {
 	private static $api = null;
-    private static $initialized = false;
 	private $users, $system;
 
 	private function __construct()
@@ -28,7 +27,7 @@ class PocketMoneyAPI
 	}
 
     /**
-     * TODO
+     * Must be called by only PocketMoney
      */
     public static function init()
     {
