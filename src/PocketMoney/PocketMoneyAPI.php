@@ -17,12 +17,17 @@ class PocketMoneyAPI
 	private function __construct()
 	{
         $dataFolder = Server::getInstance()->getPluginManager()->getPlugin("PocketMoney")->getDataFolder();
-		$this->users = new Config($dataFolder."user.yml");
+        if (!file_exists($dataFolder)) {
+            @mkdir($dataFolder, 0744, true);
+        }
+		$this->users = new Config($dataFolder."user.yml", Config::YAML);
 		$this->system = new Config($dataFolder."system.yml", Config::YAML, array("default_money" => 500));
+        $this->users->save();
+        $this->system->save();
 	}
 
 	/**
-	 * @return PocketMoneyAPI
+	 * @return self
 	 */
 	public static function getAPI()
 	{
@@ -79,7 +84,7 @@ class PocketMoneyAPI
     /**
      * @param string $account
      * @param int $amount
-     * @return bool|SimplerError
+     * @return bool|SimpleError
      */
     public function setMoney($account, $amount)
 	{
@@ -138,6 +143,7 @@ class PocketMoneyAPI
     public function hideAccount($account)
 	{
         if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
+        if ($this->getType($account) !== PlayerType::NonPlayer) return new SimpleError(SimpleError::CanHideOnlyNonPlayer, "You can hide only Non-player account");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => true)));
         $this->users->save();
         return true;
@@ -182,7 +188,7 @@ class PocketMoneyAPI
      * @param bool|int $money
      * @return bool|SimpleError
      */
-    public function createAccount($account, $type, $hide = false, $money = false)
+    public function createAccount($account, $type = PlayerType::NonPlayer, $hide = false, $money = false)
     {
         if ($this->users->exists($account)) return new SimpleError(SimpleError::AccountAlreadyExist, "\"$account\" already exists");
         $money = ($money === false ? $this->getDefaultMoney() : $money);
@@ -209,5 +215,28 @@ class PocketMoneyAPI
         if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
         $this->users->remove($account);
         return true;
+    }
+
+    public function getRanking($amount, $includeHideAccount = false)
+    {
+        $temp = array();
+        foreach ($this->config->getAll() as $name => $value) {
+            if ($includeHideAccount) {
+                $temp[$name] = $value['money'];
+            } elseif (!$value['hide']) {
+                $temp[$name] = $value['money'];
+            }
+        }
+        arsort($temp);
+        $key = array_keys($temp);
+        $val = array_values($temp);
+        for ($i = 0; $i++; $i < $amount) {
+            $tKey = array_shift($key);
+            if (is_null($tKey)) break;
+            $tVal = array_shift($val);
+            if (is_null($tVal)) break;
+            $result[$tKey] = $tVal;
+        }
+        return $result;
     }
 }

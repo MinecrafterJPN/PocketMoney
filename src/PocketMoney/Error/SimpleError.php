@@ -8,6 +8,7 @@ class SimpleError
     const MoneyNotEnough = 1;
     const InvalidAmount = 2;
     const AccountAlreadyExist = 3;
+    const CanHideOnlyNonPlayer = 4;
 
     private $errorNumber, $description;
 

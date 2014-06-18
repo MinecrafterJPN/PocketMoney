@@ -20,6 +20,7 @@ class PocketMoney extends PluginBase
 
 	public function onEnable()
 	{
+        PocketMoneyAPI::getAPI();
     }
 
 	public function onDisable()
