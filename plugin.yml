@@ -1,0 +1,22 @@
+name: PocketMoney
+main: PocketMoney\PocketMoney
+version: 3.0.0
+api: [1.0.0]
+load: POSTWORLD
+author: MinecrafterJPN
+authors: [MinecrafterJPN]
+description: PocketMoney is the foundation of money system for PocketMine
+website: https://github.com/MinecrafterJPN/PocketMoney
+commands:
+ money:
+  description: PocketMoney command
+  usage: "Usage: /money [subcommand]\nRefer to /money help"
+  permission: money.command
+permissions:
+ money:
+  default: op
+  description: "Allows using all the PocketMoney things"
+  children:
+   money.command:
+    default: true
+    description: "Allows using all the PocketMoney commands"
