@@ -258,4 +258,11 @@ class PocketMoneyAPI
         }
         return $result;
     }
+
+    public function saveConfig()
+    {
+        $this->users->save();
+        $this->system->save();
+    }
+
 }

@@ -6,14 +6,11 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
-use PocketMoney\EventListener;
 use PocketMoney\Error\SimpleError;
 use PocketMoney\constants\PlayerType;
 
 class PocketMoney extends PluginBase
 {
-    private $eventListener;
-
 	public function onLoad()
 	{
 	}
@@ -22,12 +19,12 @@ class PocketMoney extends PluginBase
 	{
         PocketMoneyAPI::init();
 
-        $this->eventListener = new EventListener($this);
-        $this->getServer()->getPluginManager()->registerEvents($this->eventListener, $this);
+        $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
     }
 
 	public function onDisable()
 	{
+        PocketMoneyAPI::getAPI()->saveConfig();
 	}
 
 	public function onCommand(CommandSender $sender, Command $command, $label, array $args)

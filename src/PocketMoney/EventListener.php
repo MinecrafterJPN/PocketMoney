@@ -9,10 +9,6 @@ use PocketMoney\constants\PlayerType;
 
 class EventListener implements Listener
 {
-    public function __construct()
-    {
-    }
-
     public function onPlayerJoin(PlayerJoinEvent $event)
     {
         $username = $event->getPlayer()->getName();
