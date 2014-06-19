@@ -2,6 +2,7 @@
 
 namespace PocketMoney;
 
+use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -29,7 +30,6 @@ class PocketMoney extends PluginBase
 
 	public function onCommand(CommandSender $sender, Command $command, $label, array $args)
 	{
-        print($sender->getName());
 		if (strtolower($sender->getName()) !== "console") return $this->onCommandByUser($sender, $command, $label, $args);
 		switch ($command->getName()) {
 			case "money":
@@ -58,6 +58,7 @@ class PocketMoney extends PluginBase
                         $money = PocketMoneyAPI::getAPI()->getMoney($account);
                         $type = PocketMoneyAPI::getAPI()->getType($account);
                         $hide = PocketMoneyAPI::getAPI()->getHide($account);
+
 						if ($money instanceof SimpleError) {
 							$sender->sendMessage($money->getDescription());
 							break;
@@ -72,7 +73,7 @@ class PocketMoney extends PluginBase
                         }
 						$type = ($type === PlayerType::Player) ? "Player" : "Non-player";
                         $hide = ($hide === false) ? "false" : "true";
-						$sender->sendMessage("\"$account\" money:$money PM, type:$type hide:$hide");
+						$sender->sendMessage("\"$account\" money:$money PM type:$type hide:$hide");
 						break;
 
 					case "create":
@@ -81,11 +82,12 @@ class PocketMoney extends PluginBase
 							$sender->sendMessage("Usage: /money create <account>");
 							break;
 						}
+
                         if (($err = PocketMoneyAPI::getAPI()->createAccount($account)) instanceof SimpleError) {
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-                        $sender->sendMessage(" \"{$account}\" was created");
+                        $sender->sendMessage("Successfully created \"$account\"");
 						break;
 
 					case "hide":
@@ -94,14 +96,16 @@ class PocketMoney extends PluginBase
 							$sender->sendMessage("Usage: /money hide <account>");
 							break;
 						}
+
                         if (($err = PocketMoneyAPI::getAPI()->hideAccount($account)) instanceof SimpleError) {
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-						$sender->sendMessage("\"$account\" was hidden");
+                        $sender->sendMessage("Successfully hid \"$account\"");
 						break;
 
-					case "unhide":
+                    case "unhide":
+                    case "expose":
 						$account = array_shift($args);
 						if (is_null($account)) {
 							$sender->sendMessage("Usage: /money unhide <account>");
@@ -111,7 +115,7 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-                        $sender->sendMessage("\"{$account}\" was unhidden");
+                        $sender->sendMessage("Successfully unhid \"$account\"");
 						break;
 
 					case "set":
@@ -126,7 +130,7 @@ class PocketMoney extends PluginBase
                             break;
                         }
 						$sender->sendMessage("[set] Done!");
-                        if (!is_null($player = $this->getServer()->getPlayer($target))) {
+                        if (($player = $this->getServer()->getPlayer($target)) instanceof Player) {
                             $player->sendMessage("Your money was changed to $amount PM by admin");
                         }
 						break;
@@ -143,7 +147,7 @@ class PocketMoney extends PluginBase
                             break;
                         }
                         $sender->sendMessage("[grant] Done!");
-                        if (!is_null($player = $this->getServer()->getPlayer($target))) {
+                        if (($player = $this->getServer()->getPlayer($target)) instanceof Player) {
                             $player->sendMessage("You were granted $amount PM by admin");
                         }
                         break;
@@ -154,19 +158,20 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage("Usage: /money top <amount>");
 							break;
 						}
-                        $sender->sendMessage("[PocketMoney] Millionaires");
-                        $sender->sendMessage("===========================");
+                        $sender->sendMessage("Millionaires");
+                        $sender->sendMessage("-* ======= *-");
                         $rank = 1;
 						foreach (PocketMoneyAPI::getAPI()->getRanking($amount) as $name => $money) {
                             $sender->sendMessage("#$rank : $name $money PM");
 							$rank++;
 						}
+                        $sender->sendMessage("-* ======= *-");
 						break;
 					case "stat":
 						$totalMoney = PocketMoneyAPI::getAPI()->getTotalMoney();
                         $accountNum = PocketMoneyAPI::getAPI()->getNumberOfAccount();
 						$avr = floor($totalMoney / $accountNum);
-                        $sender->sendMessage("[PocketMoney] Circulation:$totalMoney Average:$avr Accounts:$accountNum");
+                        $sender->sendMessage("Circulation:$totalMoney Average:$avr Accounts:$accountNum");
 						break;
 
 					default:
@@ -226,7 +231,7 @@ class PocketMoney extends PluginBase
                         }
                         $type = ($type === PlayerType::Player) ? "Player" : "Non-player";
                         $hide = ($hide === false) ? "false" : "true";
-                        $sender->sendMessage("\"$account\" money:$money PM, type:$type hide:$hide");
+                        $sender->sendMessage("\"$account\" money:$money PM type:$type hide:$hide");
                         break;
 
                     case "pay":
@@ -241,8 +246,8 @@ class PocketMoney extends PluginBase
                             break;
                         }
                         $sender->sendMessage("you -> $target: $amount PM");
-                        if (!is_null($p = $this->getServer()->getPlayer($target))) {
-                            $p->sendMessage($sender->getName()." -> you: $amount PM");
+                        if (($targetPlayer = $this->getServer()->getPlayer($target)) instanceof Player) {
+                            $targetPlayer->sendMessage($sender->getName()." -> you: $amount PM");
                         }
                         break;
 
@@ -251,7 +256,7 @@ class PocketMoney extends PluginBase
                         $target = array_shift($args);
                         $amount = array_shift($args);
                         if (is_null($target) or is_null($amount)) {
-                            $sender->sendMessage("[PocketMoney] Usage: /money wd <account> <amount>");
+                            $sender->sendMessage("Usage: /money wd <target> <amount>");
                             break;
                         }
                         if (($type = PocketMoneyAPI::getAPI()->getType($target)) instanceof SimpleError) {
@@ -266,6 +271,7 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
+                        $sender->sendMessage("$target -> you: $amount PM");
                         break;
 
                     case "create":
@@ -278,7 +284,7 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-                        $sender->sendMessage(" \"{$account}\" was created");
+                        $sender->sendMessage("Successfully created \"$account\"");
                         break;
 
                     case "hide":
@@ -291,10 +297,11 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-                        $sender->sendMessage("\"$account\" was hidden");
+                        $sender->sendMessage("Successfully hid \"$account\"");
                         break;
 
                     case "unhide":
+                    case "expose":
                         $account = array_shift($args);
                         if (is_null($account)) {
                             $sender->sendMessage("Usage: /money unhide <account>");
@@ -304,37 +311,7 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-                        $sender->sendMessage("\"{$account}\" was hidden");
-                        break;
-
-                    case "set":
-                        $target = array_shift($args);
-                        $amount = array_shift($args);
-                        if (is_null($target) or is_null($amount)) {
-                            $sender->sendMessage("Usage: /money set <target> <amount>");
-                            break;
-                        }
-                        if (($err = PocketMoneyAPI::getAPI()->setMoney($target, $amount)) instanceof SimpleError) {
-                            $sender->sendMessage($err->getDescription());
-                            break;
-                        }
-                        $sender->sendMessage("[PocketMoney][set] Done!");
-                        $this->getServer()->getPlayer($target)->sendMessage("Your money was changed to $amount PM by admin");
-                        break;
-
-                    case "grant":
-                        $target = array_shift($args);
-                        $amount = array_shift($args);
-                        if (is_null($target) or is_null($amount)) {
-                            $sender->sendMessage("Usage: /money grant <target> <amount>");
-                            break;
-                        }
-                        if (($err = PocketMoneyAPI::getAPI()->grantMoney($target, $amount)) instanceof SimpleError) {
-                            $sender->sendMessage($err->getDescription());
-                            break;
-                        }
-                        $sender->sendMessage("[grant] Done!");
-                        $this->getServer()->getPlayer($target)->sendMessage("Your money was changed to $amount PM by admin");
+                        $sender->sendMessage("Successfully unhid \"$account\"");
                         break;
 
                     case "top":
@@ -343,19 +320,20 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage("Usage: /money top <amount>");
                             break;
                         }
-                        $sender->sendMessage("[PocketMoney] Millionaires");
-                        $sender->sendMessage("===========================");
+                        $sender->sendMessage("Millionaires");
+                        $sender->sendMessage("-* ======= *-");
                         $rank = 1;
                         foreach (PocketMoneyAPI::getAPI()->getRanking($amount) as $name => $money) {
                             $sender->sendMessage("#$rank : $name $money PM");
                             $rank++;
                         }
+                        $sender->sendMessage("-* ======= *-");
                         break;
                     case "stat":
                         $totalMoney = PocketMoneyAPI::getAPI()->getTotalMoney();
                         $accountNum = PocketMoneyAPI::getAPI()->getNumberOfAccount();
                         $avr = floor($totalMoney / $accountNum);
-                        $sender->sendMessage("[PocketMoney] Circulation:$totalMoney Average:$avr Accounts:$accountNum");
+                        $sender->sendMessage("Circulation:$totalMoney Average:$avr Accounts:$accountNum");
                         break;
 
                     default:

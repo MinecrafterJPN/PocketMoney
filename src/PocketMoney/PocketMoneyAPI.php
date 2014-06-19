@@ -159,7 +159,7 @@ class PocketMoneyAPI
     public function hideAccount($account)
 	{
         if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
-        if ($this->getType($account) !== PlayerType::NonPlayer) return new SimpleError(SimpleError::CanHideOnlyNonPlayer, "You can hide only Non-player account");
+        if ($this->getType($account) !== PlayerType::NonPlayer) return new SimpleError(SimpleError::Other, "You can hide only Non-player account");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => true)));
         $this->users->save();
         return true;
