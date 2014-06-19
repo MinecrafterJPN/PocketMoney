@@ -41,50 +41,7 @@ You can change the value of default money by rewriting system.yml
 
 # For developers
 
-You can "set" money of selected player or non-player account by coding as follow.
-
-```php
-
-$accountName : string or Player object
-$amount : integer
-
-PocketMoney::setMoney($accountName, $amount);
-```
-
-----
-
-You can "grant" money to selected player or non-player account by coding as follow.
-
-```php
-
-$accountName : string or Player object
-$amount : integer
-
-PocketMoney::grantMoney($accountName, $amount);
-```
-
-----
-
-You can get money of selected player or non-player account by coding as follow.
-
-```php
-
-$accountName : string or Player object
-
-PocketMoney::getMoney($accountName);
-```
-
-----
-
-You can open non-player account by coding as follow.
-
-```php
-
-$accountName : string or Player object
-$hide : boolean, optional parameter (default = false)
-
-PocketMoney::createAccount($accountName, $hide = false);
-```
+See src/PocketMoney/PocketMoneyAPI.php
 
 
 
