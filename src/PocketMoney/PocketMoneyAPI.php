@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * PocketMoneyAPI
+ * @version 1.0
+ * @author MinecrafterJPN
+ */
+
 namespace PocketMoney;
 
 use pocketmine\Server;
@@ -131,7 +137,7 @@ class PocketMoneyAPI
      * @param bool $hide
      * @return bool|SimpleError
      */
-    public function setAccountHide($account, $hide)
+    public function setAccountHideMode($account, $hide)
     {
         if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => $hide)));
@@ -143,7 +149,7 @@ class PocketMoneyAPI
      * @param bool $account
      * @return bool|SimpleError
      */
-    public function switchHide($account)
+    public function switchHideMode($account)
     {
         if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
         $hide = $this->users->get($account)['hide'];
@@ -264,5 +270,4 @@ class PocketMoneyAPI
         $this->users->save();
         $this->system->save();
     }
-
 }
