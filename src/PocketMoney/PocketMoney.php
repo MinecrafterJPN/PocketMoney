@@ -22,7 +22,7 @@ class PocketMoney extends PluginBase
 	{
         PocketMoneyAPI::init();
 
-        $this->eventListener = new EventListener();
+        $this->eventListener = new EventListener($this);
         $this->getServer()->getPluginManager()->registerEvents($this->eventListener, $this);
     }
 
@@ -101,7 +101,7 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-						$sender->sendMessage("\"{$account}\" was hidden");
+						$sender->sendMessage("\"$account\" was hidden");
 						break;
 
 					case "unhide":
