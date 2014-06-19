@@ -2,18 +2,18 @@
 
 namespace PocketMoney;
 
-use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
-use pocketmine\utils\Config;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 
+use PocketMoney\EventListener;
 use PocketMoney\Error\SimpleError;
-
 use PocketMoney\constants\PlayerType;
 
 class PocketMoney extends PluginBase
 {
+    private $eventListener;
+
 	public function onLoad()
 	{
 	}
@@ -21,6 +21,9 @@ class PocketMoney extends PluginBase
 	public function onEnable()
 	{
         PocketMoneyAPI::init();
+
+        $this->eventListener = new EventListener();
+        $this->getServer()->getPluginManager()->registerEvents($this->eventListener, $this);
     }
 
 	public function onDisable()
@@ -29,6 +32,7 @@ class PocketMoney extends PluginBase
 
 	public function onCommand(CommandSender $sender, Command $command, $label, array $args)
 	{
+        print($sender->getName());
 		if (strtolower($sender->getName()) !== "console") return $this->onCommandByUser($sender, $command, $label, $args);
 		switch ($command->getName()) {
 			case "money":
@@ -56,6 +60,7 @@ class PocketMoney extends PluginBase
 
                         $money = PocketMoneyAPI::getAPI()->getMoney($account);
                         $type = PocketMoneyAPI::getAPI()->getType($account);
+                        $hide = PocketMoneyAPI::getAPI()->getHide($account);
 						if ($money instanceof SimpleError) {
 							$sender->sendMessage($money->getDescription());
 							break;
@@ -64,8 +69,13 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($type->getDescription());
                             break;
                         }
-						$type =  ($type === PlayerType::Player) ? "Player" : "Non-player";
-						$sender->sendMessage("[PocketMoney] \"$account\" money:$money PM, type:$type");
+                        if ($hide instanceof SimpleError) {
+                            $sender->sendMessage($hide->getDescription());
+                            break;
+                        }
+						$type = ($type === PlayerType::Player) ? "Player" : "Non-player";
+                        $hide = ($hide === false) ? "false" : "true";
+						$sender->sendMessage("\"$account\" money:$money PM, type:$type hide:$hide");
 						break;
 
 					case "create":
@@ -104,7 +114,7 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-                        $sender->sendMessage("\"{$account}\" was hidden");
+                        $sender->sendMessage("\"{$account}\" was unhidden");
 						break;
 
 					case "set":
@@ -118,8 +128,10 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($err->getDescription());
                             break;
                         }
-						$sender->sendMessage("[PocketMoney][set] Done!");
-						$this->getServer()->getPlayer($target)->sendMessage("Your money was changed to $amount PM by admin");
+						$sender->sendMessage("[set] Done!");
+                        if (!is_null($player = $this->getServer()->getPlayer($target))) {
+                            $player->sendMessage("Your money was changed to $amount PM by admin");
+                        }
 						break;
 
 					case "grant":
@@ -134,7 +146,9 @@ class PocketMoney extends PluginBase
                             break;
                         }
                         $sender->sendMessage("[grant] Done!");
-                        $this->getServer()->getPlayer($target)->sendMessage("Your money was changed to $amount PM by admin");
+                        if (!is_null($player = $this->getServer()->getPlayer($target))) {
+                            $player->sendMessage("You were granted $amount PM by admin");
+                        }
                         break;
 						
 					case "top":
@@ -200,6 +214,7 @@ class PocketMoney extends PluginBase
 
                         $money = PocketMoneyAPI::getAPI()->getMoney($account);
                         $type = PocketMoneyAPI::getAPI()->getType($account);
+                        $hide = PocketMoneyAPI::getAPI()->getHide($account);
                         if ($money instanceof SimpleError) {
                             $sender->sendMessage($money->getDescription());
                             break;
@@ -208,8 +223,13 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage($type->getDescription());
                             break;
                         }
-                        $type =  ($type === PlayerType::Player) ? "Player" : "Non-player";
-                        $sender->sendMessage("[PocketMoney] \"$account\" money:$money PM, type:$type");
+                        if ($hide instanceof SimpleError) {
+                            $sender->sendMessage($hide->getDescription());
+                            break;
+                        }
+                        $type = ($type === PlayerType::Player) ? "Player" : "Non-player";
+                        $hide = ($hide === false) ? "false" : "true";
+                        $sender->sendMessage("\"$account\" money:$money PM, type:$type hide:$hide");
                         break;
 
                     case "pay":
@@ -222,6 +242,10 @@ class PocketMoney extends PluginBase
                         if (($err = PocketMoneyAPI::getAPI()->payMoney($sender->getName(), $target, $amount)) instanceof SimpleError) {
                             $sender->sendMessage($err->getDescription());
                             break;
+                        }
+                        $sender->sendMessage("you -> $target: $amount PM");
+                        if (!is_null($p = $this->getServer()->getPlayer($target))) {
+                            $p->sendMessage($sender->getName()." -> you: $amount PM");
                         }
                         break;
 

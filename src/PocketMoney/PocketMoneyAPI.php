@@ -2,7 +2,6 @@
 
 namespace PocketMoney;
 
-use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 
@@ -76,6 +75,12 @@ class PocketMoneyAPI
         if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" dose not exist");
         return $this->users->get($account)['type'];
 	}
+
+    public function getHide($account)
+    {
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" dose not exist");
+        return $this->users->get($account)['hide'];
+    }
 
     /**
      * @param string $sender
@@ -194,7 +199,7 @@ class PocketMoneyAPI
 
     /**
      * @param string $account
-     * @param int $type
+     * @param int|string $type
      * @param bool $hide
      * @param bool|int $money
      * @return bool|SimpleError
@@ -214,6 +219,7 @@ class PocketMoneyAPI
             }
         }
         $this->users->set($account, array("money" => $money, "type" => $type, "hide" => $hide));
+        $this->users->save();
         return true;
     }
 
@@ -225,13 +231,15 @@ class PocketMoneyAPI
     {
         if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
         $this->users->remove($account);
+        $this->users->save();
         return true;
     }
 
     public function getRanking($amount, $includeHideAccount = false)
     {
+        $result = array();
         $temp = array();
-        foreach ($this->config->getAll() as $name => $value) {
+        foreach ($this->users->getAll() as $name => $value) {
             if ($includeHideAccount) {
                 $temp[$name] = $value['money'];
             } elseif (!$value['hide']) {
@@ -241,7 +249,7 @@ class PocketMoneyAPI
         arsort($temp);
         $key = array_keys($temp);
         $val = array_values($temp);
-        for ($i = 0; $i++; $i < $amount) {
+        for ($i = 0; $i < $amount; $i++) {
             $tKey = array_shift($key);
             if (is_null($tKey)) break;
             $tVal = array_shift($val);
