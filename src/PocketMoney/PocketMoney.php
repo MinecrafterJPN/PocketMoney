@@ -247,7 +247,6 @@ class PocketMoney extends PluginBase
 
 	public function onEnable()
 	{
-        PocketMoneyAPI::init();
         if (!file_exists($this->getDataFolder())) @mkdir($this->getDataFolder(), 0755, true);
         $this->users = new Config($this->getDataFolder()."user.yml", Config::YAML);
         $this->system = new Config($this->getDataFolder()."system.yml", Config::YAML, array("default_money" => 500));
