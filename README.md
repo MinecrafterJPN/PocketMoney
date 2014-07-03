@@ -41,8 +41,9 @@ You can change the value of default money by rewriting system.yml
 
 # For developers
 
-See src/PocketMoney/PocketMoneyAPI.php
-
+See src/PocketMoney/PocketMoney.php
+The first half of file is API.
+If you have some questions about API, feel free to ask me in the forum or on Twitter.
 
 
 
