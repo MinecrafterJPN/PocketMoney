@@ -12,7 +12,7 @@ class EventListener implements Listener
     public function onPlayerJoin(PlayerJoinEvent $event)
     {
         $username = $event->getPlayer()->getName();
-        if (PocketMoneyAPI::getAPI()->createAccount($username, PlayerType::Player, false) === true) {
+        if (Server::getInstance()->getPluginManager()->getPlugin("PocketMoney")->createAccount($username, PlayerType::Player, false) === true) {
             Server::getInstance()->broadcastMessage("$username has been registered to PocketMoney");
         }
     }
