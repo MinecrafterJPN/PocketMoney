@@ -40,7 +40,7 @@ class PocketMoney extends PluginBase
      */
     public function getMoney($account)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" does not exist");
         return $this->users->get($account)['money'];
     }
 
@@ -50,13 +50,13 @@ class PocketMoney extends PluginBase
      */
     public function getType($account)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" does not exist");
         return $this->users->get($account)['type'];
     }
 
     public function getHide($account)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" does not exist");
         return $this->users->get($account)['hide'];
     }
 
@@ -68,8 +68,8 @@ class PocketMoney extends PluginBase
      */
     public function payMoney($sender, $receiver, $amount)
     {
-        if (!$this->users->exists($sender)) return new SimpleError(SimpleError::AccountNotExist, " \"$sender\" dose not exist");
-        if (!$this->users->exists($sender)) return new SimpleError(SimpleError::AccountNotExist, " \"$receiver\" dose not exist");
+        if (!$this->users->exists($sender)) return new SimpleError(SimpleError::AccountNotExist, " \"$sender\" does not exist");
+        if (!$this->users->exists($sender)) return new SimpleError(SimpleError::AccountNotExist, " \"$receiver\" does not exist");
         if (($res = $this->grantMoney($sender, -$amount)) !== true) return $res;
         if (($res = $this->grantMoney($receiver, +$amount)) !== true) return $res;
         return true;
@@ -82,7 +82,7 @@ class PocketMoney extends PluginBase
      */
     public function setMoney($account, $amount)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         if (!is_numeric($amount) or $amount < 0) return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         $this->users->set($account, array_merge($this->users->get($account), array("money" => $amount)));
         $this->users->save();
@@ -96,7 +96,7 @@ class PocketMoney extends PluginBase
      */
     public function grantMoney($account, $amount)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $targetMoney = $this->getMoney($account);
         if (!is_numeric($amount) or ($targetMoney + $amount) < 0) return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         $this->users->set($account, array_merge($this->users->get($account), array("money" => $targetMoney + $amount)));
@@ -111,7 +111,7 @@ class PocketMoney extends PluginBase
      */
     public function setAccountHideMode($account, $hide)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => $hide)));
         $this->users->save();
         return true;
@@ -123,7 +123,7 @@ class PocketMoney extends PluginBase
      */
     public function switchHideMode($account)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $hide = $this->users->get($account)['hide'];
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => !$hide)));
         $this->users->save();
@@ -136,7 +136,7 @@ class PocketMoney extends PluginBase
      */
     public function hideAccount($account)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         if ($this->getType($account) !== PlayerType::NonPlayer) return new SimpleError(SimpleError::Other, "You can hide only Non-player account");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => true)));
         $this->users->save();
@@ -149,7 +149,7 @@ class PocketMoney extends PluginBase
      */
     public function unhideAccount($account)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => false)));
         $this->users->save();
         return true;
@@ -207,7 +207,7 @@ class PocketMoney extends PluginBase
      */
     public function deleteAccount($account)
     {
-        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" dose not exist");
+        if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $this->users->remove($account);
         $this->users->save();
         return true;
@@ -409,7 +409,7 @@ class PocketMoney extends PluginBase
 						break;
 
 					default:
-                        $sender->sendMessage("\"/money $subCommand\" dose not exist");
+                        $sender->sendMessage("\"/money $subCommand\" does not exist");
 						break;
 				}
 				return true;
@@ -571,7 +571,7 @@ class PocketMoney extends PluginBase
                         break;
 
                     default:
-                        $sender->sendMessage("\"/money $subCommand\" dose not exist");
+                        $sender->sendMessage("\"/money $subCommand\" does not exist");
                         break;
                 }
                 return true;
