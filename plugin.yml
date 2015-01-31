@@ -1,7 +1,7 @@
 name: PocketMoney
 main: PocketMoney\PocketMoney
 version: 3.1.1
-api: [1.0.0]
+api: [1.10.0]
 load: POSTWORLD
 author: MinecrafterJPN
 authors: [MinecrafterJPN]

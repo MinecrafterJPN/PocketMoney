@@ -1,11 +1,5 @@
 <?php
 
-/**
- * PocketMoney
- * @version 3.1.1
- * @author MinecrafterJPN
- */
-
 namespace PocketMoney;
 
 use pocketmine\Player;
