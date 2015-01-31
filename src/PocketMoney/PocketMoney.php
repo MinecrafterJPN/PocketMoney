@@ -68,6 +68,7 @@ class PocketMoney extends PluginBase
      */
     public function payMoney($sender, $receiver, $amount)
     {
+        if (!is_numeric($amount) or $amount < 0) return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         if (!$this->users->exists($sender)) return new SimpleError(SimpleError::AccountNotExist, " \"$sender\" does not exist");
         if (!$this->users->exists($sender)) return new SimpleError(SimpleError::AccountNotExist, " \"$receiver\" does not exist");
         if (($res = $this->grantMoney($sender, -$amount)) !== true) return $res;
