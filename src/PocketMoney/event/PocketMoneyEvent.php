@@ -1,6 +1,6 @@
 <?php
 
-namespace PocketMoney\Events;
+namespace PocketMoney\event;
 
 use pocketmine\event\plugin\PluginEvent;
 use PocketMoney\PocketMoney;

@@ -8,10 +8,10 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\Config;
 
-use PocketMoney\Error\SimpleError;
+use PocketMoney\error\SimpleError;
 use PocketMoney\constants\PlayerType;
-use PocketMoney\Events\MoneyUpdateEvent;
-use PocketMoney\Events\TransactionEvent;
+use PocketMoney\event\MoneyUpdateEvent;
+use PocketMoney\event\TransactionEvent;
 
 class PocketMoney extends PluginBase
 {
@@ -19,6 +19,8 @@ class PocketMoney extends PluginBase
     private $users;
     /* @var Config */
     private $system;
+
+
 
     // <- API
 
@@ -48,7 +50,7 @@ class PocketMoney extends PluginBase
      * @api
      *
      * @param string $account
-     * @return PlayerType|SimpleError
+     * @return int|SimpleError
      */
     public function getType($account)
     {
