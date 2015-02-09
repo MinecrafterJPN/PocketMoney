@@ -26,6 +26,8 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * return if $account is registered
+     *
      * @param string $account
      * @return bool
      */
@@ -37,6 +39,8 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * return default money
+     *
      * @return int
      */
     public function getDefaultMoney()
@@ -46,6 +50,8 @@ class PocketMoney extends PluginBase
 
     /**
      * @api
+     *
+     * return $account's money
      *
      * @param string $account
      * @return int|false
@@ -60,6 +66,8 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * return $account's account type
+     *
      * @param string $account
      * @return int|false
      */
@@ -73,6 +81,8 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * return if $account is hid
+     *
      * @param string $account
      * @return bool
      */
@@ -85,6 +95,9 @@ class PocketMoney extends PluginBase
 
     /**
      * @api
+     *
+     * $sender pays $receiver $amount PM
+     * return if the transaction is succeeded
      *
      * @param string $sender
      * @param string $receiver
@@ -128,6 +141,9 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * set $amount to $account's money
+     * return if the transaction is succeeded
+     *
      * @param string $account
      * @param int $amount
      * @return bool
@@ -151,6 +167,9 @@ class PocketMoney extends PluginBase
 
     /**
      * @api
+     *
+     * grant $amount to $account
+     * return if the transaction is succeeded
      *
      * @param string $account
      * @param int $amount
@@ -177,6 +196,9 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * set $account's hide mode
+     * return if the transaction is succeeded
+     *
      * @param string$account
      * @param bool $hide
      * @return bool
@@ -193,6 +215,9 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * switch $account's hide mode
+     * return if the transaction is succeeded
+     *
      * @param bool $account
      * @return bool
      */
@@ -208,6 +233,9 @@ class PocketMoney extends PluginBase
 
     /**
      * @api
+     *
+     * hide $account
+     * return if the transaction is succeeded
      *
      * @param string $account
      * @return bool
@@ -226,6 +254,9 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * unhide $account
+     * return if the transaction is succeeded
+     *
      * @param string $account
      * @return bool
      */
@@ -241,6 +272,8 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * return number of account
+     *
      * @return int
      */
     public function getNumberOfAccount()
@@ -250,6 +283,8 @@ class PocketMoney extends PluginBase
 
     /**
      * @api
+     *
+     * return total money
      *
      * @return int
      */
@@ -264,6 +299,9 @@ class PocketMoney extends PluginBase
 
     /**
      * @api
+     *
+     * create $account
+     * return if the transaction is succeeded
      *
      * @param string $account
      * @param int|string $type
@@ -296,6 +334,9 @@ class PocketMoney extends PluginBase
     /**
      * @api
      *
+     * delete $account
+     * return if the transaction is succeeded
+     *
      * @param string $account
      * @return bool
      */
@@ -310,6 +351,8 @@ class PocketMoney extends PluginBase
 
     /**
      * @api
+     *
+     * return ranking
      *
      * @param int $amount
      * @param bool $includeHideAccount
