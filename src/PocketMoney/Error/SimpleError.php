@@ -1,6 +1,6 @@
 <?php
 
-namespace PocketMoney\Error;
+namespace PocketMoney\error;
 
 class SimpleError
 {
@@ -19,11 +19,17 @@ class SimpleError
         $this->description = $description;
     }
 
+    /**
+     * @return string
+     */
     public function getDescription()
     {
         return $this->description;
     }
 
+    /**
+     * @return int
+     */
     public function getErrorNumber()
     {
         return $this->errorNumber;
