@@ -10,6 +10,8 @@ use pocketmine\utils\Config;
 
 use PocketMoney\Error\SimpleError;
 use PocketMoney\constants\PlayerType;
+use PocketMoney\Events\MoneyUpdateEvent;
+use PocketMoney\Events\TransactionEvent;
 
 class PocketMoney extends PluginBase
 {
@@ -67,6 +69,27 @@ class PocketMoney extends PluginBase
         if (!$this->users->exists($sender)) return new SimpleError(SimpleError::AccountNotExist, " \"$receiver\" does not exist");
         if (($res = $this->grantMoney($sender, -$amount)) !== true) return $res;
         if (($res = $this->grantMoney($receiver, +$amount)) !== true) return $res;
+        $this->getServer()->getPluginManager()->callEvent(
+            new MoneyUpdateEvent(
+                $this,
+                $this->getServer()->getPlayer($sender),
+                $this->getMoney($sender),
+                MoneyUpdateEvent::CAUSE_PAY));
+        $this->getServer()->getPluginManager()->callEvent(
+            new MoneyUpdateEvent(
+                $this,
+                $this->getServer()->getPlayer($receiver),
+                $this->getMoney($receiver),
+                MoneyUpdateEvent::CAUSE_PAY));
+
+        $this->getServer()->getPluginManager()->callEvent(
+            new TransactionEvent(
+                $this,
+                $this->getServer()->getPlayer($sender),
+                $this->getServer()->getPlayer($receiver),
+                $amount,
+                TransactionEvent::TRANSACTION_PAY));
+
         return true;
     }
 
@@ -81,6 +104,12 @@ class PocketMoney extends PluginBase
         if (!is_numeric($amount) or $amount < 0) return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         $this->users->set($account, array_merge($this->users->get($account), array("money" => $amount)));
         $this->users->save();
+        $this->getServer()->getPluginManager()->callEvent(
+            new MoneyUpdateEvent(
+                $this,
+                $this->getServer()->getPlayer($account),
+                $amount,
+                MoneyUpdateEvent::CAUSE_SET));
         return true;
     }
 
@@ -96,6 +125,12 @@ class PocketMoney extends PluginBase
         if (!is_numeric($amount) or ($targetMoney + $amount) < 0) return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         $this->users->set($account, array_merge($this->users->get($account), array("money" => $targetMoney + $amount)));
         $this->users->save();
+        $this->getServer()->getPluginManager()->callEvent(
+            new MoneyUpdateEvent(
+                $this,
+                $this->getServer()->getPlayer($account),
+                $this->getMoney($account),
+                MoneyUpdateEvent::CAUSE_GRANT));
         return true;
     }
 
