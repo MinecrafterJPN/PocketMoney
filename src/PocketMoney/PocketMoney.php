@@ -23,6 +23,8 @@ class PocketMoney extends PluginBase
     // <- API
 
     /**
+     * @api
+     *
      * @return int
      */
     public function getDefaultMoney()
@@ -31,6 +33,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $account
      * @return int|SimpleError
      */
@@ -41,6 +45,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $account
      * @return PlayerType|SimpleError
      */
@@ -50,6 +56,12 @@ class PocketMoney extends PluginBase
         return $this->users->get($account)['type'];
     }
 
+    /**
+     * @api
+     *
+     * @param string $account
+     * @return bool|SimpleError
+     */
     public function getHide($account)
     {
         if (!$this->users->exists($account)) return new SimpleError(SimpleError::AccountNotExist, " \"$account\" does not exist");
@@ -57,6 +69,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $sender
      * @param string $receiver
      * @param int $amount
@@ -94,6 +108,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $account
      * @param int $amount
      * @return bool|SimpleError
@@ -114,6 +130,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $account
      * @param int $amount
      * @return bool|SimpleError
@@ -135,6 +153,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string$account
      * @param bool $hide
      * @return bool|SimpleError
@@ -148,6 +168,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param bool $account
      * @return bool|SimpleError
      */
@@ -161,6 +183,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $account
      * @return bool|SimpleError
      */
@@ -174,6 +198,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $account
      * @return bool|SimpleError
      */
@@ -186,6 +212,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @return int
      */
     public function getNumberOfAccount()
@@ -194,6 +222,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @return int
      */
     public function getTotalMoney()
@@ -206,6 +236,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $account
      * @param int|string $type
      * @param bool $hide
@@ -232,6 +264,8 @@ class PocketMoney extends PluginBase
     }
 
     /**
+     * @api
+     *
      * @param string $account
      * @return bool|SimpleError
      */
@@ -243,6 +277,13 @@ class PocketMoney extends PluginBase
         return true;
     }
 
+    /**
+     * @api
+     *
+     * @param int $amount
+     * @param bool $includeHideAccount
+     * @return array
+     */
     public function getRanking($amount, $includeHideAccount = false)
     {
         $result = array();
