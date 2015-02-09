@@ -48,7 +48,7 @@ class PocketMoney extends PluginBase
      * @api
      *
      * @param string $account
-     * @return int|bool
+     * @return int|false
      */
     public function getMoney($account)
     {
@@ -61,7 +61,7 @@ class PocketMoney extends PluginBase
      * @api
      *
      * @param string $account
-     * @return int|bool
+     * @return int|false
      */
     public function getType($account)
     {
