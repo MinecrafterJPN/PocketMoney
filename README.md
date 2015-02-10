@@ -44,6 +44,10 @@ You can change the value of default money by rewriting system.yml
 See src/PocketMoney/PocketMoney.php
 The first half of file is API.
 
+## Events
+- MoneyUpdateEvent: called when someone's money is changed.
+- TransactionEvent: called when transaction(pay, withdraw) is performed.
+
 If you have some questions about API, feel free to ask me in the forum or on Twitter.
 
 
