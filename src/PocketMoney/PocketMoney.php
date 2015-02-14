@@ -8,7 +8,6 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\Config;
 
-use pocketmine\utils\TextFormat;
 use PocketMoney\constants\PlayerType;
 use PocketMoney\event\MoneyUpdateEvent;
 use PocketMoney\event\TransactionEvent;
@@ -579,10 +578,6 @@ class PocketMoney extends PluginBase
                         break;
 
                     case "view":
-                        if (!$sender->hasPermission($this->getCommandPermission("view"))) {
-                            $sender->sendMessage(TextFormat::RED . "You don't have permissions to use this command");
-                            break;
-                        }
                         $account = array_shift($args);
                         if (is_null($account)) {
                             $sender->sendMessage("Usage: /money view <account>");
@@ -602,10 +597,6 @@ class PocketMoney extends PluginBase
                         break;
 
                     case "pay":
-                        if (!$sender->hasPermission($this->getCommandPermission("pay"))) {
-                            $sender->sendMessage(TextFormat::RED . "You don't have permissions to use this command");
-                            break;
-                        }
                         $target = array_shift($args);
                         $amount = array_shift($args);
                         if (is_null($target) or is_null($amount)) {
@@ -624,10 +615,6 @@ class PocketMoney extends PluginBase
 
                     case "withdraw":
                     case "wd":
-                        if (!$sender->hasPermission($this->getCommandPermission("withdraw"))) {
-                            $sender->sendMessage(TextFormat::RED . "You don't have permissions to use this command");
-                            break;
-                        }
                         $target = array_shift($args);
                         $amount = array_shift($args);
                         if (is_null($target) or is_null($amount)) {
@@ -651,10 +638,6 @@ class PocketMoney extends PluginBase
                         break;
 
                     case "create":
-                        if (!$sender->hasPermission($this->getCommandPermission("create"))) {
-                            $sender->sendMessage(TextFormat::RED . "You don't have permissions to use this command");
-                            break;
-                        }
                         $account = array_shift($args);
                         if (is_null($account)) {
                             $sender->sendMessage("Usage: /money create <account>");
@@ -668,10 +651,6 @@ class PocketMoney extends PluginBase
                         break;
 
                     case "hide":
-                        if (!$sender->hasPermission($this->getCommandPermission("hide"))) {
-                            $sender->sendMessage(TextFormat::RED . "You don't have permissions to use this command");
-                            break;
-                        }
                         $account = array_shift($args);
                         if (is_null($account)) {
                             $sender->sendMessage('Usage: /money hide <account>');
@@ -686,10 +665,6 @@ class PocketMoney extends PluginBase
 
                     case "unhide":
                     case "expose":
-                        if (!$sender->hasPermission($this->getCommandPermission("unhide"))) {
-                            $sender->sendMessage(TextFormat::RED . "You don't have permissions to use this command");
-                            break;
-                        }
                         $account = array_shift($args);
                         if (is_null($account)) {
                             $sender->sendMessage("Usage: /money unhide <account>");
@@ -703,10 +678,6 @@ class PocketMoney extends PluginBase
                         break;
 
                     case "top":
-                        if (!$sender->hasPermission($this->getCommandPermission("top"))) {
-                            $sender->sendMessage(TextFormat::RED . "You don't have permissions to use this command");
-                            break;
-                        }
                         $amount = array_shift($args);
                         if (is_null($amount)) {
                             $sender->sendMessage("Usage: /money top <amount>");
@@ -722,10 +693,6 @@ class PocketMoney extends PluginBase
                         $sender->sendMessage("-* ======= *-");
                         break;
                     case "stat":
-                        if (!$sender->hasPermission($this->getCommandPermission("stat"))) {
-                            $sender->sendMessage(TextFormat::RED . "You don't have permissions to use this command");
-                            break;
-                        }
                         $totalMoney = $this->getTotalMoney();
                         $accountNum = $this->getNumberOfAccount();
                         $avr = floor($totalMoney / $accountNum);
@@ -741,10 +708,5 @@ class PocketMoney extends PluginBase
             default:
                 return false;
         }
-    }
-
-    private function getCommandPermission($command)
-    {
-        return "money.command." . $command;
     }
 }
