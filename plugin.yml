@@ -20,3 +20,28 @@ permissions:
    money.command:
     default: true
     description: "Allows using all the PocketMoney commands"
+    children:
+     money.command.view:
+      default: true
+      description: "Allows using /money view commands"
+     money.command.pay:
+      default: true
+      description: "Allows using /money pay commands"
+     money.command.withdraw:
+      default: true
+      description: "Allows using /money withdraw commands"
+     money.command.create:
+      default: true
+      description: "Allows using /money create commands"
+     money.command.hide:
+      default: true
+      description: "Allows using /money hide commands"
+     money.command.unhide:
+      default: true
+      description: "Allows using /money unhide commands"
+     money.command.top:
+      default: true
+      description: "Allows using /money top commands"
+     money.command.stat:
+      default: true
+      description: "Allows using /money stat commands"
