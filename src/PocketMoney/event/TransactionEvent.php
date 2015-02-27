@@ -9,6 +9,8 @@ class TransactionEvent extends PocketMoneyEvent
 {
     const TRANSACTION_PAY = 0;
 
+    public static $handlerList = null;
+
     /** @var Player $sender */
     private $sender;
     /** @var Player $receiver */
