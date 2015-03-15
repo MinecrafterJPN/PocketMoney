@@ -437,7 +437,7 @@ class PocketMoney extends PluginBase
                         $type = $this->getType($account);
                         $hide = $this->getHide($account);
 
-                        if ($money === false || $type === false || $hide === false) {
+                        if ($money === false || $type === false || $hide === true) {
                             $sender->sendMessage("Couldn't view the account");
                             break;
                         }
@@ -587,7 +587,7 @@ class PocketMoney extends PluginBase
                         $money = $this->getMoney($account);
                         $type = $this->getType($account);
                         $hide = $this->getHide($account);
-                        if ($money === false || $type === false || $hide === false) {
+                        if ($money === false || $type === false || $hide === true) {
                             $sender->sendMessage("Couldn't view the account");
                             break;
                         }
