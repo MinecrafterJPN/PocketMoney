@@ -117,21 +117,21 @@ class PocketMoney extends PluginBase
         $this->getServer()->getPluginManager()->callEvent(
             new MoneyUpdateEvent(
                 $this,
-                $this->getServer()->getPlayer($sender),
+                $sender,
                 $this->getMoney($sender),
                 MoneyUpdateEvent::CAUSE_PAY));
         $this->getServer()->getPluginManager()->callEvent(
             new MoneyUpdateEvent(
                 $this,
-                $this->getServer()->getPlayer($receiver),
+                $receiver,
                 $this->getMoney($receiver),
                 MoneyUpdateEvent::CAUSE_PAY));
 
         $this->getServer()->getPluginManager()->callEvent(
             new TransactionEvent(
                 $this,
-                $this->getServer()->getPlayer($sender),
-                $this->getServer()->getPlayer($receiver),
+                $sender,
+                $receiver,
                 $amount,
                 TransactionEvent::TRANSACTION_PAY));
 
@@ -159,7 +159,7 @@ class PocketMoney extends PluginBase
         $this->getServer()->getPluginManager()->callEvent(
             new MoneyUpdateEvent(
                 $this,
-                $this->getServer()->getPlayer($account),
+                $account,
                 $amount,
                 MoneyUpdateEvent::CAUSE_SET));
         return true;
@@ -187,7 +187,7 @@ class PocketMoney extends PluginBase
         $this->getServer()->getPluginManager()->callEvent(
             new MoneyUpdateEvent(
                 $this,
-                $this->getServer()->getPlayer($account),
+                $account,
                 $this->getMoney($account),
                 MoneyUpdateEvent::CAUSE_GRANT));
         return true;

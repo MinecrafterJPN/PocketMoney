@@ -13,7 +13,7 @@ class MoneyUpdateEvent extends PocketMoneyEvent
 
     public static $handlerList = null;
 
-    /** @var Player $player */
+    /** @var string $player */
     private $player;
     /** @var int $amount */
     private $amount;
@@ -26,7 +26,7 @@ class MoneyUpdateEvent extends PocketMoneyEvent
      * @param int $amount
      * @param int $cause
      */
-    public function __construct(PocketMoney $plugin, Player $player, $amount, $cause)
+    public function __construct(PocketMoney $plugin, $player, $amount, $cause)
     {
         $this->player = $player;
         $this->amount = $amount;

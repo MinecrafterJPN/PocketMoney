@@ -11,9 +11,9 @@ class TransactionEvent extends PocketMoneyEvent
 
     public static $handlerList = null;
 
-    /** @var Player $sender */
+    /** @var string $sender */
     private $sender;
-    /** @var Player $receiver */
+    /** @var string $receiver */
     private $receiver;
     /** @var int amount */
     private $amount;
@@ -22,12 +22,12 @@ class TransactionEvent extends PocketMoneyEvent
 
     /**
      * @param PocketMoney $plugin
-     * @param Player $sender
-     * @param Player $receiver
+     * @param string $sender
+     * @param string $receiver
      * @param int $amount
      * @param int $transactionType
      */
-    public function __construct(PocketMoney $plugin, Player $sender, Player $receiver, $amount, $transactionType)
+    public function __construct(PocketMoney $plugin, $sender, $receiver, $amount, $transactionType)
     {
         $this->sender = $sender;
         $this->receiver = $receiver;
