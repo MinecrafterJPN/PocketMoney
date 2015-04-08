@@ -22,7 +22,7 @@ class MoneyUpdateEvent extends PocketMoneyEvent
 
     /**
      * @param PocketMoney $plugin
-     * @param Player $player
+     * @param string $player
      * @param int $amount
      * @param int $cause
      */
