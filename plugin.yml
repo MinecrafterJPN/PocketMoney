@@ -5,18 +5,46 @@ api: [1.10.0]
 load: POSTWORLD
 author: MinecrafterJPN
 authors: [MinecrafterJPN]
-description: "PocketMoney is the foundation of money system for PocketMine"
-website: "https://github.com/MinecrafterJPN/PocketMoney"
+description: The core economy system with many APIs
+website: https://github.com/MinecrafterJPN/PocketMoney
 commands:
  money:
-  description: "PocketMoney command"
-  usage: "Usage: /money [subcommand]\nRefer to /money help"
-  permission: money.command
+  description: PocketMoney command
+  usage: /money [subcommand]
+  permission: pocketmoney.money
 permissions:
- money:
+ pocketmoney:
   default: op
-  description: "Allows using all the PocketMoney things"
+  description: "Allows using everything PocketMoney has"
   children:
-   money.command:
+  # The following permissions belong to commands
+   pocketmoney.money:
     default: true
-    description: "Allows using all the PocketMoney commands"
+    description: Allows using "/money" command
+   pocketmoney.help:
+    default: true
+    description: Allows using "/money help" command
+   pocketmoney.view:
+    default: true
+    description: Allows using "/money view" command
+   pocketmoney.pay:
+    default: true
+    description: Allows using "/money pay" command
+   pocketmoney.withdraw:
+    default: true
+    description: Allows using "/money withdraw" command
+   pocketmoney.create:
+    default: true
+    description: Allows using "/money create" command
+   pocketmoney.hide:
+    default: true
+    description: Allows using "/money hide" command
+   pocketmoney.unhide:
+    default: true
+    description: Allows using "/money unhide" command
+   pocketmoney.top:
+    default: true
+    description: Allows using "/money top" command
+   pocketmoney.stat:
+    default: true
+    description: Allows using "/money stat" command
