@@ -19,6 +19,8 @@ class PocketMoney extends PluginBase
     /* @var Config */
     private $system;
 
+    private $messages;
+
 
 
     // <- API
@@ -393,9 +395,12 @@ class PocketMoney extends PluginBase
     {
         if (!file_exists($this->getDataFolder())) @mkdir($this->getDataFolder(), 0755, true);
         $this->users = new Config($this->getDataFolder() . "user.yml", Config::YAML);
-        $this->system = new Config($this->getDataFolder() . "system.yml", Config::YAML, array("default_money" => 500));
+        $this->system = new Config($this->getDataFolder() . "system.yml", Config::YAML, array("default_money" => 500, "currency" => "PM"));
         $this->users->save();
         $this->system->save();
+
+        $this->saveResource("messages.yml", false);
+        $this->messages = $this->parseMessages((new Config($this->getDataFolder() . "messages.yml"))->getAll());
 
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
     }
@@ -563,7 +568,7 @@ class PocketMoney extends PluginBase
                 switch ($subCommand) {
                     case "":
                         $money = $this->getMoney($sender->getName());
-                        $sender->sendMessage("$money PM");
+                        $sender->sendMessage($this->getFormattedMoney($money));
                         break;
                     case "help":
                         if ($sender->hasPermission("pocketmoney.help")) {
@@ -577,7 +582,7 @@ class PocketMoney extends PluginBase
                             $sender->sendMessage("/money top <amount>");
                             $sender->sendMessage("/money stat");
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
                         break;
 
@@ -585,7 +590,7 @@ class PocketMoney extends PluginBase
                         if ($sender->hasPermission("pocketmoney.view")) {
                             $account = array_shift($args);
                             if (is_null($account)) {
-                                $sender->sendMessage("Usage: /money view <account>");
+                                $sender->sendMessage($this->getMessage("view.usage"));
                                 break;
                             }
 
@@ -593,14 +598,20 @@ class PocketMoney extends PluginBase
                             $type = $this->getType($account);
                             $hide = $this->getHide($account);
                             if ($money === false || $type === false || $hide === true) {
-                                $sender->sendMessage("Couldn't view the account");
+                                $sender->sendMessage($this->getMessage("view.fail"));
                                 break;
                             }
-                            $type = ($type === PlayerType::Player) ? "Player" : "Non-player";
-                            $hide = ($hide === false) ? "false" : "true";
-                            $sender->sendMessage("\"$account\" money:$money PM type:$type hide:$hide");
+                            $type = ($type === PlayerType::Player) ? $this->getMessage("view.type.player") : $this->getMessage("view.type.non-player");
+                            $hide = ($hide === false) ? $this->getMessage("view.hide.false") : $this->getMessage("view.hide.true");
+                            $result = $this->getMessage("view.result");
+                            $result = str_replace("{{account}}", $account, $result);
+                            $result = str_replace("{{money}}", $this->getFormattedMoney($money), $result);
+                            $result = str_replace("{{type}}", $type, $result);
+                            $result = str_replace("{{hide}}", $hide, $result);
+
+                            $sender->sendMessage($result);
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
                         break;
 
@@ -609,19 +620,26 @@ class PocketMoney extends PluginBase
                             $target = array_shift($args);
                             $amount = array_shift($args);
                             if (is_null($target) or is_null($amount)) {
-                                $sender->sendMessage("Usage: /money pay <target> <amount>");
+                                $sender->sendMessage($this->getMessage("pay.usage"));
                                 break;
                             }
                             if (!$this->payMoney($sender->getName(), $target, $amount)) {
-                                $sender->sendMessage("Failed to pay");
+                                $sender->sendMessage($this->getMessage("pay.fail"));
                                 break;
                             }
-                            $sender->sendMessage("you -> $target: $amount PM");
+                            $formattedAmount = $this->getFormattedMoney($amount);
+                            $senderMessage = $this->getMessage("pay.result.sender");
+                            $senderMessage = str_replace("{{target}}", $target, $senderMessage);
+                            $senderMessage = str_replace("{{money}}", $formattedAmount, $senderMessage);
+                            $sender->sendMessage($senderMessage);
                             if (($targetPlayer = $this->getServer()->getPlayer($target)) instanceof Player) {
-                                $targetPlayer->sendMessage($sender->getName() . " -> you: $amount PM");
+                                $targetMessage = $this->getMessage("pay.result.target");
+                                $targetMessage = str_replace("{{sender}}", $sender->getName(), $targetMessage);
+                                $targetMessage = str_replace("{{money}}", $formattedAmount, $targetMessage);
+                                $targetPlayer->sendMessage($targetMessage);
                             }
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
 
                         break;
@@ -632,25 +650,28 @@ class PocketMoney extends PluginBase
                             $target = array_shift($args);
                             $amount = array_shift($args);
                             if (is_null($target) or is_null($amount)) {
-                                $sender->sendMessage("Usage: /money wd <target> <amount>");
+                                $sender->sendMessage($this->getMessage("withdraw.usage"));
                                 break;
                             }
                             $type = $this->getType($target);
                             if ($type === false) {
-                                $sender->sendMessage("Failed to withdraw");
+                                $sender->sendMessage($this->getMessage("withdraw.fail"));
                                 break;
                             }
                             if ($type !== PlayerType::NonPlayer) {
-                                $sender->sendMessage("You can withdraw money from only non-player account");
+                                $sender->sendMessage($this->getMessage("withdraw.error.nonplayer"));
                                 break;
                             }
                             if (!$this->payMoney($target, $sender->getName(), $amount)) {
-                                $sender->sendMessage("Failed to pay");
+                                $sender->sendMessage($this->getMessage("withdraw.error.pay"));
                                 break;
                             }
-                            $sender->sendMessage("$target -> you: $amount PM");
+                            $result = $this->getMessage("withdraw.result");
+                            $result = str_replace("{{target}}", $target, $result);
+                            $result = str_replace("{{money}}", $this->getFormattedMoney($amount), $result);
+                            $sender->sendMessage($result);
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
                         break;
 
@@ -658,16 +679,16 @@ class PocketMoney extends PluginBase
                         if ($sender->hasPermission("pocketmoney.create")) {
                             $account = array_shift($args);
                             if (is_null($account)) {
-                                $sender->sendMessage("Usage: /money create <account>");
+                                $sender->sendMessage($this->getMessage("create.usage"));
                                 break;
                             }
                             if (!$this->createAccount($account)) {
-                                $sender->sendMessage("Failed to create the account");
+                                $sender->sendMessage($this->getMessage("create.fail"));
                                 break;
                             }
-                            $sender->sendMessage("Successfully created \"$account\"");
+                            $sender->sendMessage(str_replace("{{account}}", $account, $this->getMessage("create.success")));
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
                         break;
 
@@ -675,17 +696,17 @@ class PocketMoney extends PluginBase
                         if ($sender->hasPermission("pocketmoney.hide")) {
                             $account = array_shift($args);
                             if (is_null($account)) {
-                                $sender->sendMessage('Usage: /money hide <account>');
+                                $sender->sendMessage($this->getMessage("hide.usage"));
                                 break;
                             }
                             if (!$this->hideAccount($account)) {
-                                $sender->sendMessage("Failed to hide the account");
+                                $sender->sendMessage($this->getMessage("hide.fail"));
                                 break;
                             }
-                            $sender->sendMessage("Successfully hid \"$account\"");
+                            $sender->sendMessage(str_replace("{{account}}", $account, $this->getMessage("hide.success")));
 
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
 
                         break;
@@ -695,17 +716,17 @@ class PocketMoney extends PluginBase
                         if ($sender->hasPermission("pocketmoney.unhide")) {
                             $account = array_shift($args);
                             if (is_null($account)) {
-                                $sender->sendMessage("Usage: /money unhide <account>");
+                                $sender->sendMessage($this->getMessage("unhide.usage"));
                                 break;
                             }
                             if (!$this->unhideAccount($account)) {
-                                $sender->sendMessage("Failed to unhide the account");
+                                $sender->sendMessage($this->getMessage("unhide.fail"));
                                 break;
                             }
-                            $sender->sendMessage("Successfully unhid \"$account\"");
+                            $sender->sendMessage(str_replace("{{account}}", $account, $this->getMessage("unhide.success")));
 
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
 
                         break;
@@ -714,38 +735,46 @@ class PocketMoney extends PluginBase
                         if ($sender->hasPermission("pocketmoney.top")) {
                             $amount = array_shift($args);
                             if (is_null($amount)) {
-                                $sender->sendMessage("Usage: /money top <amount>");
+                                $sender->sendMessage($this->getMessage("top.usage"));
                                 break;
                             }
-                            $sender->sendMessage("Millionaires");
-                            $sender->sendMessage("-* ======= *-");
+                            $sender->sendMessage($this->getMessage("top.title"));
+                            $sender->sendMessage($this->getMessage("top.decoration"));
                             $rank = 1;
                             foreach ($this->getRanking($amount) as $name => $money) {
-                                $sender->sendMessage("#$rank : $name $money PM");
+                                $item = $this->getMessage("top.item");
+                                $item = str_replace("{{rank}}", $rank, $item);
+                                $item = str_replace("{{name}}", $name, $item);
+                                $item = str_replace("{{money}}", $this->getFormattedMoney($money), $item);
+                                $sender->sendMessage($item);
                                 $rank++;
                             }
-                            $sender->sendMessage("-* ======= *-");
+                            $sender->sendMessage($this->getMessage("top.decoration"));
 
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
 
                         break;
                     case "stat":
                         if ($sender->hasPermission("pocketmoney.stat")) {
-                            $totalMoney = $this->getTotalMoney();
-                            $accountNum = $this->getNumberOfAccount();
-                            $avr = floor($totalMoney / $accountNum);
-                            $sender->sendMessage("Circulation:$totalMoney Average:$avr Accounts:$accountNum");
+                            $total = $this->getTotalMoney();
+                            $accounts = $this->getNumberOfAccount();
+                            $average = floor($total / $accounts);
+                            $result = $this->getMessage("stat.result");
+                            $result = str_replace("{{total}}", $total, $result);
+                            $result = str_replace("{{average}}", $average, $result);
+                            $result = str_replace("{{accounts}}", $accounts, $result);
+                            $sender->sendMessage($result);
 
                         } else {
-                            $sender->sendMessage("You don't have permissions to use this command.");
+                            $sender->sendMessage($this->getMessage("system.error.permission"));
                         }
 
                         break;
 
                     default:
-                        $sender->sendMessage("\"/money $subCommand\" does not exist");
+                        $sender->sendMessage(str_replace("{{subCommand}}", $subCommand, $this->getMessage("system.error.invalidsubcommand")));
                         break;
                 }
                 return true;
@@ -753,5 +782,30 @@ class PocketMoney extends PluginBase
             default:
                 return false;
         }
+    }
+
+    private function parseMessages(array $messages)
+    {
+        $result = [];
+        foreach($messages as $key => $value){
+            if(is_array($value)){
+                foreach($this->parseMessages($value) as $k => $v){
+                    $result[$key . "." . $k] = $v;
+                }
+            }else{
+                $result[$key] = $value;
+            }
+        }
+        return $result;
+    }
+
+    private function getMessage($key)
+    {
+        return isset($this->messages[$key]) ? $this->messages[$key] : $key;
+    }
+
+    private function getFormattedMoney($money)
+    {
+        return $money . " " . $this->system->get("currency");
     }
 }
