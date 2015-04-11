@@ -10,7 +10,7 @@ website: https://github.com/MinecrafterJPN/PocketMoney
 commands:
  money:
   description: PocketMoney command
-  usage: Usage: /money [subcommand]
+  usage: /money [subcommand]
   permission: pocketmoney.money
 permissions:
  pocketmoney:
