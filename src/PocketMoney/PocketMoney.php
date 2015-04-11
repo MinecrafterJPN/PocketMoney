@@ -315,7 +315,7 @@ class PocketMoney extends PluginBase
     {
         if ($this->isRegistered($account)) return false;
         //return new SimpleError(SimpleError::AccountAlreadyExist, "\"$account\" already exists");
-        $money = ($money === false ? $this->getDefaultMoney() : $money);
+        $money = ($money === false ? 0 : $money);
         if (!is_numeric($money) or $money < 0) return false;
         //return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         if (!is_numeric($type)) {
@@ -411,6 +411,7 @@ class PocketMoney extends PluginBase
         $this->system->save();
     }
 
+    //TODO: Localize console message!!!!
     public function onCommand(CommandSender $sender, Command $command, $label, array $args)
     {
         if ($sender instanceof Player) return $this->onCommandByUser($sender, $command, $label, $args);

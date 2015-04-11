@@ -1,5 +1,5 @@
 name: "PocketMoney"
-main: "PocketMoney\PocketMoney"
+main: "PocketMoney\\PocketMoney"
 version: 3.2.2
 api: [1.10.0]
 load: "POSTWORLD"
@@ -20,31 +20,31 @@ permissions:
   # The following permissions belong to commands
    pocketmoney.money:
     default: true
-    description: "Allows using "/money" command"
+    description: "Allows using \"/money\" command"
    pocketmoney.help:
     default: true
-    description: "Allows using "/money help" command"
+    description: "Allows using \"/money help\" command"
    pocketmoney.view:
     default: true
-    description: "Allows using "/money view" command"
+    description: "Allows using \"/money view\" command"
    pocketmoney.pay:
     default: true
-    description: "Allows using "/money pay" command"
+    description: "Allows using \"/money pay\" command"
    pocketmoney.withdraw:
     default: true
-    description: "Allows using "/money withdraw" command"
+    description: "Allows using \"/money withdraw\" command"
    pocketmoney.create:
     default: true
-    description: "Allows using "/money create" command"
+    description: "Allows using \"/money create\" command"
    pocketmoney.hide:
     default: true
-    description: "Allows using "/money hide" command"
+    description: "Allows using \"/money hide\" command"
    pocketmoney.unhide:
     default: true
-    description: "Allows using "/money unhide" command"
+    description: "Allows using \"/money unhide\" command"
    pocketmoney.top:
     default: true
-    description: "Allows using "/money top" command"
+    description: "Allows using \"/money top\" command"
    pocketmoney.stat:
     default: true
-    description: "Allows using "/money stat" command"
+    description: "Allows using \"/money stat\" command"
