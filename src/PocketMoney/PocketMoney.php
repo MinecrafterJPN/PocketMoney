@@ -435,79 +435,85 @@ class PocketMoney extends PluginBase
                     case "view":
                         $account = array_shift($args);
                         if (is_null($account)) {
-                            $sender->sendMessage("Usage: /money view <account>");
+                            $sender->sendMessage($this->getMessage("view.usage"));
                             break;
                         }
 
                         $money = $this->getMoney($account);
                         $type = $this->getType($account);
                         $hide = $this->getHide($account);
-
                         if ($money === false || $type === false || $hide === true) {
-                            $sender->sendMessage("Couldn't view the account");
+                            $sender->sendMessage($this->getMessage("view.fail"));
                             break;
                         }
-                        $type = ($type === PlayerType::Player) ? "Player" : "Non-player";
-                        $hide = ($hide === false) ? "false" : "true";
-                        $sender->sendMessage("\"$account\" money:$money PM type:$type hide:$hide");
+                        $type = ($type === PlayerType::Player) ? $this->getMessage("view.type.player") : $this->getMessage("view.type.non-player");
+                        $hide = ($hide === false) ? $this->getMessage("view.hide.false") : $this->getMessage("view.hide.true");
+                        $result = $this->getMessage("view.result");
+                        $result = str_replace("{{account}}", $account, $result);
+                        $result = str_replace("{{money}}", $this->getFormattedMoney($money), $result);
+                        $result = str_replace("{{type}}", $type, $result);
+                        $result = str_replace("{{hide}}", $hide, $result);
+
+                        $sender->sendMessage($result);
                         break;
 
                     case "create":
                         $account = array_shift($args);
                         if (is_null($account)) {
-                            $sender->sendMessage("Usage: /money create <account>");
+                            $sender->sendMessage($this->getMessage("create.usage"));
                             break;
                         }
-
                         if (!$this->createAccount($account)) {
-                            $sender->sendMessage("Failed to create account");
+                            $sender->sendMessage($this->getMessage("create.fail"));
                             break;
                         }
-                        $sender->sendMessage("Successfully created \"$account\"");
+                        $sender->sendMessage(str_replace("{{account}}", $account, $this->getMessage("create.success")));
                         break;
 
                     case "hide":
                         $account = array_shift($args);
                         if (is_null($account)) {
-                            $sender->sendMessage("Usage: /money hide <account>");
+                            $sender->sendMessage($this->getMessage("hide.usage"));
                             break;
                         }
-
                         if (!$this->hideAccount($account)) {
-                            $sender->sendMessage("Failed to hide account");
+                            $sender->sendMessage($this->getMessage("hide.fail"));
                             break;
                         }
-                        $sender->sendMessage("Successfully hid \"$account\"");
+                        $sender->sendMessage(str_replace("{{account}}", $account, $this->getMessage("hide.success")));
                         break;
 
                     case "unhide":
                     case "expose":
                         $account = array_shift($args);
                         if (is_null($account)) {
-                            $sender->sendMessage("Usage: /money unhide <account>");
+                            $sender->sendMessage($this->getMessage("unhide.usage"));
                             break;
                         }
                         if (!$this->unhideAccount($account)) {
-                            $sender->sendMessage("Failed to unhide account");
+                            $sender->sendMessage($this->getMessage("unhide.fail"));
                             break;
                         }
-                        $sender->sendMessage("Successfully unhid \"$account\"");
+                        $sender->sendMessage(str_replace("{{account}}", $account, $this->getMessage("unhide.success")));
+
                         break;
 
                     case "set":
                         $target = array_shift($args);
                         $amount = array_shift($args);
                         if (is_null($target) or is_null($amount)) {
-                            $sender->sendMessage("Usage: /money set <target> <amount>");
+                            $sender->sendMessage($this->getMessage("set.usage"));
                             break;
                         }
                         if (!$this->setMoney($target, $amount)) {
-                            $sender->sendMessage("Failed to set money");
+                            $sender->sendMessage($this->getMessage("set.fail"));
                             break;
                         }
-                        $sender->sendMessage("[set] Done!");
+                        $sender->sendMessage($this->getMessage("set.result.console"));
                         if (($player = $this->getServer()->getPlayer($target)) instanceof Player) {
-                            $player->sendMessage("Your money was changed to $amount PM by admin");
+                            $result = $this->getMessage("set.result.target");
+                            $result = str_replace("{{money}}", $this->getFormattedMoney($amount), $result);
+                            $player->sendMessage($result);
                         }
                         break;
 
@@ -515,43 +521,54 @@ class PocketMoney extends PluginBase
                         $target = array_shift($args);
                         $amount = array_shift($args);
                         if (is_null($target) or is_null($amount)) {
-                            $sender->sendMessage("Usage: /money grant <target> <amount>");
+                            $sender->sendMessage($this->getMessage("grant.usage"));
                             break;
                         }
                         if (!$this->grantMoney($target, $amount)) {
-                            $sender->sendMessage("Failed to grant money");
+                            $sender->sendMessage($this->getMessage("grant.fail"));
                             break;
                         }
-                        $sender->sendMessage("[grant] Done!");
+                        $sender->sendMessage($this->getMessage("grant.result.console"));
                         if (($player = $this->getServer()->getPlayer($target)) instanceof Player) {
-                            $player->sendMessage("You were granted $amount PM by admin");
+                            $result = $this->getMessage("grant.result.target");
+                            $result = str_replace("{{money}}", $this->getFormattedMoney($amount), $result);
+                            $player->sendMessage($result);
                         }
                         break;
 
                     case "top":
                         $amount = array_shift($args);
                         if (is_null($amount)) {
-                            $sender->sendMessage("Usage: /money top <amount>");
+                            $sender->sendMessage($this->getMessage("top.usage"));
                             break;
                         }
-                        $sender->sendMessage("Millionaires");
-                        $sender->sendMessage("-* ======= *-");
+                        $sender->sendMessage($this->getMessage("top.title"));
+                        $sender->sendMessage($this->getMessage("top.decoration"));
                         $rank = 1;
                         foreach ($this->getRanking($amount) as $name => $money) {
-                            $sender->sendMessage("#$rank : $name $money PM");
+                            $item = $this->getMessage("top.item");
+                            $item = str_replace("{{rank}}", $rank, $item);
+                            $item = str_replace("{{name}}", $name, $item);
+                            $item = str_replace("{{money}}", $this->getFormattedMoney($money), $item);
+                            $sender->sendMessage($item);
                             $rank++;
                         }
-                        $sender->sendMessage("-* ======= *-");
+                        $sender->sendMessage($this->getMessage("top.decoration"));
                         break;
+
                     case "stat":
-                        $totalMoney = $this->getTotalMoney();
-                        $accountNum = $this->getNumberOfAccount();
-                        $avr = floor($totalMoney / $accountNum);
-                        $sender->sendMessage("Circulation:$totalMoney Average:$avr Accounts:$accountNum");
+                        $total = $this->getTotalMoney();
+                        $accounts = $this->getNumberOfAccount();
+                        $average = floor($total / $accounts);
+                        $result = $this->getMessage("stat.result");
+                        $result = str_replace("{{total}}", $this->getFormattedMoney($total), $result);
+                        $result = str_replace("{{average}}", $average, $result);
+                        $result = str_replace("{{accounts}}", $accounts, $result);
+                        $sender->sendMessage($result);
                         break;
 
                     default:
-                        $sender->sendMessage("\"/money $subCommand\" does not exist");
+                        $sender->sendMessage(str_replace("{{subCommand}}", $subCommand, $this->getMessage("system.error.invalidsubcommand")));
                         break;
                 }
                 return true;
@@ -763,7 +780,7 @@ class PocketMoney extends PluginBase
                             $accounts = $this->getNumberOfAccount();
                             $average = floor($total / $accounts);
                             $result = $this->getMessage("stat.result");
-                            $result = str_replace("{{total}}", $total, $result);
+                            $result = str_replace("{{total}}", $this->getFormattedMoney($total), $result);
                             $result = str_replace("{{average}}", $average, $result);
                             $result = str_replace("{{accounts}}", $accounts, $result);
                             $sender->sendMessage($result);

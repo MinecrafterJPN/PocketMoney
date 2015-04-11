@@ -54,3 +54,17 @@ top:
 
 stat:
  result: "Total:{{total}} Average:{{average}} Accounts:{{accounts}}"
+
+set:
+ usage: "Usage: /money set <target> <amount>"
+ fail: "Failed to set money"
+ result:
+  console: "[set] Done!"
+  target: "Your money was changed to {{money}} by admin"
+
+grant:
+ usage: "Usage: /money grant <target> <amount>"
+ fail: "Failed to grant money"
+ result:
+  console: "[grant] Done!"
+  target: "You were granted {{money}} by admin"
