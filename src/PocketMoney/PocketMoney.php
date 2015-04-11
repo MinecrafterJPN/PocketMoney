@@ -566,137 +566,182 @@ class PocketMoney extends PluginBase
                         $sender->sendMessage("$money PM");
                         break;
                     case "help":
-                        $sender->sendMessage("/money help");
-                        $sender->sendMessage("/money view <account>");
-                        $sender->sendMessage("/money pay <target>");
-                        $sender->sendMessage("/money create <account>");
-                        $sender->sendMessage("/money hide <account>");
-                        $sender->sendMessage("/money unhide <account>");
-                        $sender->sendMessage("/money wd <target> <amount>");
-                        $sender->sendMessage("/money top <amount>");
-                        $sender->sendMessage("/money stat");
+                        if ($sender->hasPermission("pocketmoney.help")) {
+                            $sender->sendMessage("/money help");
+                            $sender->sendMessage("/money view <account>");
+                            $sender->sendMessage("/money pay <target>");
+                            $sender->sendMessage("/money create <account>");
+                            $sender->sendMessage("/money hide <account>");
+                            $sender->sendMessage("/money unhide <account>");
+                            $sender->sendMessage("/money wd <target> <amount>");
+                            $sender->sendMessage("/money top <amount>");
+                            $sender->sendMessage("/money stat");
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
+                        }
                         break;
 
                     case "view":
-                        $account = array_shift($args);
-                        if (is_null($account)) {
-                            $sender->sendMessage("Usage: /money view <account>");
-                            break;
-                        }
+                        if ($sender->hasPermission("pocketmoney.view")) {
+                            $account = array_shift($args);
+                            if (is_null($account)) {
+                                $sender->sendMessage("Usage: /money view <account>");
+                                break;
+                            }
 
-                        $money = $this->getMoney($account);
-                        $type = $this->getType($account);
-                        $hide = $this->getHide($account);
-                        if ($money === false || $type === false || $hide === true) {
-                            $sender->sendMessage("Couldn't view the account");
-                            break;
+                            $money = $this->getMoney($account);
+                            $type = $this->getType($account);
+                            $hide = $this->getHide($account);
+                            if ($money === false || $type === false || $hide === true) {
+                                $sender->sendMessage("Couldn't view the account");
+                                break;
+                            }
+                            $type = ($type === PlayerType::Player) ? "Player" : "Non-player";
+                            $hide = ($hide === false) ? "false" : "true";
+                            $sender->sendMessage("\"$account\" money:$money PM type:$type hide:$hide");
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
                         }
-                        $type = ($type === PlayerType::Player) ? "Player" : "Non-player";
-                        $hide = ($hide === false) ? "false" : "true";
-                        $sender->sendMessage("\"$account\" money:$money PM type:$type hide:$hide");
                         break;
 
                     case "pay":
-                        $target = array_shift($args);
-                        $amount = array_shift($args);
-                        if (is_null($target) or is_null($amount)) {
-                            $sender->sendMessage("Usage: /money pay <target> <amount>");
-                            break;
+                        if ($sender->hasPermission("pocketmoney.pay")) {
+                            $target = array_shift($args);
+                            $amount = array_shift($args);
+                            if (is_null($target) or is_null($amount)) {
+                                $sender->sendMessage("Usage: /money pay <target> <amount>");
+                                break;
+                            }
+                            if (!$this->payMoney($sender->getName(), $target, $amount)) {
+                                $sender->sendMessage("Failed to pay");
+                                break;
+                            }
+                            $sender->sendMessage("you -> $target: $amount PM");
+                            if (($targetPlayer = $this->getServer()->getPlayer($target)) instanceof Player) {
+                                $targetPlayer->sendMessage($sender->getName() . " -> you: $amount PM");
+                            }
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
                         }
-                        if (!$this->payMoney($sender->getName(), $target, $amount)) {
-                            $sender->sendMessage("Failed to pay");
-                            break;
-                        }
-                        $sender->sendMessage("you -> $target: $amount PM");
-                        if (($targetPlayer = $this->getServer()->getPlayer($target)) instanceof Player) {
-                            $targetPlayer->sendMessage($sender->getName() . " -> you: $amount PM");
-                        }
+
                         break;
 
                     case "withdraw":
                     case "wd":
-                        $target = array_shift($args);
-                        $amount = array_shift($args);
-                        if (is_null($target) or is_null($amount)) {
-                            $sender->sendMessage("Usage: /money wd <target> <amount>");
-                            break;
+                        if ($sender->hasPermission("pocketmoney.withdraw")) {
+                            $target = array_shift($args);
+                            $amount = array_shift($args);
+                            if (is_null($target) or is_null($amount)) {
+                                $sender->sendMessage("Usage: /money wd <target> <amount>");
+                                break;
+                            }
+                            $type = $this->getType($target);
+                            if ($type === false) {
+                                $sender->sendMessage("Failed to withdraw");
+                                break;
+                            }
+                            if ($type !== PlayerType::NonPlayer) {
+                                $sender->sendMessage("You can withdraw money from only non-player account");
+                                break;
+                            }
+                            if (!$this->payMoney($target, $sender->getName(), $amount)) {
+                                $sender->sendMessage("Failed to pay");
+                                break;
+                            }
+                            $sender->sendMessage("$target -> you: $amount PM");
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
                         }
-                        $type = $this->getType($target);
-                        if ($type === false) {
-                            $sender->sendMessage("Failed to withdraw");
-                            break;
-                        }
-                        if ($type !== PlayerType::NonPlayer) {
-                            $sender->sendMessage("You can withdraw money from only non-player account");
-                            break;
-                        }
-                        if (!$this->payMoney($target, $sender->getName(), $amount)) {
-                            $sender->sendMessage("Failed to pay");
-                            break;
-                        }
-                        $sender->sendMessage("$target -> you: $amount PM");
                         break;
 
                     case "create":
-                        $account = array_shift($args);
-                        if (is_null($account)) {
-                            $sender->sendMessage("Usage: /money create <account>");
-                            break;
+                        if ($sender->hasPermission("pocketmoney.create")) {
+                            $account = array_shift($args);
+                            if (is_null($account)) {
+                                $sender->sendMessage("Usage: /money create <account>");
+                                break;
+                            }
+                            if (!$this->createAccount($account)) {
+                                $sender->sendMessage("Failed to create the account");
+                                break;
+                            }
+                            $sender->sendMessage("Successfully created \"$account\"");
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
                         }
-                        if (!$this->createAccount($account)) {
-                            $sender->sendMessage("Failed to create the account");
-                            break;
-                        }
-                        $sender->sendMessage("Successfully created \"$account\"");
                         break;
 
                     case "hide":
-                        $account = array_shift($args);
-                        if (is_null($account)) {
-                            $sender->sendMessage('Usage: /money hide <account>');
-                            break;
+                        if ($sender->hasPermission("pocketmoney.hide")) {
+                            $account = array_shift($args);
+                            if (is_null($account)) {
+                                $sender->sendMessage('Usage: /money hide <account>');
+                                break;
+                            }
+                            if (!$this->hideAccount($account)) {
+                                $sender->sendMessage("Failed to hide the account");
+                                break;
+                            }
+                            $sender->sendMessage("Successfully hid \"$account\"");
+
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
                         }
-                        if (!$this->hideAccount($account)) {
-                            $sender->sendMessage("Failed to hide the account");
-                            break;
-                        }
-                        $sender->sendMessage("Successfully hid \"$account\"");
+
                         break;
 
                     case "unhide":
                     case "expose":
-                        $account = array_shift($args);
-                        if (is_null($account)) {
-                            $sender->sendMessage("Usage: /money unhide <account>");
-                            break;
+                        if ($sender->hasPermission("pocketmoney.unhide")) {
+                            $account = array_shift($args);
+                            if (is_null($account)) {
+                                $sender->sendMessage("Usage: /money unhide <account>");
+                                break;
+                            }
+                            if (!$this->unhideAccount($account)) {
+                                $sender->sendMessage("Failed to unhide the account");
+                                break;
+                            }
+                            $sender->sendMessage("Successfully unhid \"$account\"");
+
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
                         }
-                        if (!$this->unhideAccount($account)) {
-                            $sender->sendMessage("Failed to unhide the account");
-                            break;
-                        }
-                        $sender->sendMessage("Successfully unhid \"$account\"");
+
                         break;
 
                     case "top":
-                        $amount = array_shift($args);
-                        if (is_null($amount)) {
-                            $sender->sendMessage("Usage: /money top <amount>");
-                            break;
+                        if ($sender->hasPermission("pocketmoney.top")) {
+                            $amount = array_shift($args);
+                            if (is_null($amount)) {
+                                $sender->sendMessage("Usage: /money top <amount>");
+                                break;
+                            }
+                            $sender->sendMessage("Millionaires");
+                            $sender->sendMessage("-* ======= *-");
+                            $rank = 1;
+                            foreach ($this->getRanking($amount) as $name => $money) {
+                                $sender->sendMessage("#$rank : $name $money PM");
+                                $rank++;
+                            }
+                            $sender->sendMessage("-* ======= *-");
+
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
                         }
-                        $sender->sendMessage("Millionaires");
-                        $sender->sendMessage("-* ======= *-");
-                        $rank = 1;
-                        foreach ($this->getRanking($amount) as $name => $money) {
-                            $sender->sendMessage("#$rank : $name $money PM");
-                            $rank++;
-                        }
-                        $sender->sendMessage("-* ======= *-");
+
                         break;
                     case "stat":
-                        $totalMoney = $this->getTotalMoney();
-                        $accountNum = $this->getNumberOfAccount();
-                        $avr = floor($totalMoney / $accountNum);
-                        $sender->sendMessage("Circulation:$totalMoney Average:$avr Accounts:$accountNum");
+                        if ($sender->hasPermission("pocketmoney.stat")) {
+                            $totalMoney = $this->getTotalMoney();
+                            $accountNum = $this->getNumberOfAccount();
+                            $avr = floor($totalMoney / $accountNum);
+                            $sender->sendMessage("Circulation:$totalMoney Average:$avr Accounts:$accountNum");
+
+                        } else {
+                            $sender->sendMessage("You don't have permissions to use this command.");
+                        }
+
                         break;
 
                     default:
