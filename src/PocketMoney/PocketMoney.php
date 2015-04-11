@@ -411,7 +411,6 @@ class PocketMoney extends PluginBase
         $this->system->save();
     }
 
-    //TODO: Localize console message!!!!
     public function onCommand(CommandSender $sender, Command $command, $label, array $args)
     {
         if ($sender instanceof Player) return $this->onCommandByUser($sender, $command, $label, $args);
