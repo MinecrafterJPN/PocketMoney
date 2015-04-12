@@ -1,6 +1,6 @@
 # PocketMoney
 
-PocketMoney is the foundation of money system for PocketMine.
+The core economy system with many APIs
 
 # Installation
 1.  Drop it into your /plugins folder.
@@ -22,22 +22,31 @@ PocketMoney is the foundation of money system for PocketMine.
 
 # Chat commands
 
-| Command | Parameter | Description |
-| :-----: | :-------: | :---------: |
-| /money | `None` | Show your money |
-| /money help | `None` | Show help |
-| /money view | `None` | Show balance of `<account>` |
-| /money create | `<account>` | Open non-player `<account>` |
-| /money wd | `<account>` `<amount>` | Withdraw `<amount>` from `<account>` |
-| /money hide | `<account>` | Hide `<account>` from /money top |
-| /money unhide | `<account>` | Unhide `<account>` from /money top |
-| /money top | `<amount>` | Show the ranking up to `<amount>` |
-| /money pay | `<target>` `<amount>` | Pay `<target>` `<amount>` |
-| /money stat | `None` | Show current economy state (circulation, average money, number of account) |
+| Command | Parameter | Description | Permission |
+| :-----: | :-------: | :---------: | :---------: |
+| /money | `None` | Show your money | pocketmoney.money |
+| /money help | `None` | Show help | pocketmoney.help |
+| /money view | `None` | Show balance of `<account>` | pocketmoney.view |
+| /money create | `<account>` | Open non-player `<account>` | pocketmoney.create |
+| /money wd | `<account>` `<amount>` | Withdraw `<amount>` from `<account>` | pocketmoney.withdraw |
+| /money hide | `<account>` | Hide `<account>` from /money top | pocketmoney.hide |
+| /money unhide | `<account>` | Unhide `<account>` from /money top | pocketmoney.unhide |
+| /money top | `<amount>` | Show the ranking up to `<amount>` | pocketmoney.top |
+| /money pay | `<target>` `<amount>` | Pay `<target>` `<amount>` | pocketmoney.pay | 
+| /money stat | `None` | Show current economy state (circulation, average money, number of account) | pocketmoney.stat |
 
-# Tips
+# Customize
+## Change messages PocketMoney sends
+1. Open "plugins/PocketMoney/messages.yml"
+2. Change messages
 
-You can change the value of default money by rewriting system.yml
+## Change default money(default: 500)
+1. Open "plugins/PocketMoney/system.yml"
+2. Change "default\_money"
+
+## Change currency(default: PM)
+1. Open "plugins/PocketMoney/ssystem.yml"
+2. Change "currency"
 
 # For developers
 

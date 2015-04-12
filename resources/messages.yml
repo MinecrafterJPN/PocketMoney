@@ -1,0 +1,70 @@
+# {{variable}} is variable
+# It is replaced at run time
+system:
+ error:
+  permission: "You don't have permissions to use this command."
+  invalidsubcommand: "/money {{subCommand}} does not exist"
+
+view:
+ usage: "Usage: /money view <account>"
+ type:
+  player: "Player"
+  non-player: "Non-Player"
+ hide:
+  true: "true"
+  false: "false"
+ fail: "Couldn't view the account"
+ result: "{{account}} money:{{money}} type:{{type}} hide:{{hide}}"
+
+pay:
+ usage: "Usage: /money pay <target> <amount>"
+ fail: "Failed to pay"
+ result:
+  sender: "you -> {{target}}: {{money}}"
+  target: "{{sender}} -> you: {{money}}"
+
+withdraw:
+ usage: "Usage: /money wd <target> <amount>"
+ fail: "Failed to withdraw"
+ error:
+  nonplayer: "You can withdraw money from only non-player account"
+  pay: "Failed to pay"
+ result: "{{target}} -> you: {{money}}"
+
+create:
+ usage: "Usage: /money create <account>"
+ fail: "Failed to create the account"
+ success: "Successfully created {{account}}"
+
+hide:
+ usage: "Usage: /money hide <account>"
+ fail: "Failed to hide the account"
+ success: "Successfully hid {{account}}"
+
+unhide:
+ usage: "Usage: /money unhide <account>"
+ fail: "Failed to unhide the account"
+ success: "Successfully unhid {{account}}"
+
+top:
+ usage: "Usage: /money top <amount>"
+ title: "Millionaires"
+ decoration: "-* ======= *-"
+ item: "#{{rank}} : {{name}} {{money}}"
+
+stat:
+ result: "Total:{{total}} Average:{{average}} Accounts:{{accounts}}"
+
+set:
+ usage: "Usage: /money set <target> <amount>"
+ fail: "Failed to set money"
+ result:
+  console: "[set] Done!"
+  target: "Your money was changed to {{money}} by admin"
+
+grant:
+ usage: "Usage: /money grant <target> <amount>"
+ fail: "Failed to grant money"
+ result:
+  console: "[grant] Done!"
+  target: "You were granted {{money}} by admin"
