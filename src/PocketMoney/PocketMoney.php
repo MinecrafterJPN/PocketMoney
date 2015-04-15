@@ -2,6 +2,8 @@
 
 namespace PocketMoney;
 
+use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
@@ -12,7 +14,7 @@ use PocketMoney\constants\PlayerType;
 use PocketMoney\event\MoneyUpdateEvent;
 use PocketMoney\event\TransactionEvent;
 
-class PocketMoney extends PluginBase
+class PocketMoney extends PluginBase implements Listener
 {
     /* @var Config */
     private $users;
@@ -391,7 +393,7 @@ class PocketMoney extends PluginBase
         $this->saveResource("messages.yml", false);
         $this->messages = $this->parseMessages((new Config($this->getDataFolder() . "messages.yml"))->getAll());
 
-        $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 
     public function onDisable()
@@ -787,6 +789,15 @@ class PocketMoney extends PluginBase
 
             default:
                 return false;
+        }
+    }
+
+    public function onPlayerJoin(PlayerJoinEvent $event)
+    {
+        $username = $event->getPlayer()->getName();
+        ;
+        if ($this->createAccount($username, PlayerType::Player, false, $this->getDefaultMoney()) === true) {
+            $this->getServer()->broadcastMessage("$username has been registered to PocketMoney");
         }
     }
 
