@@ -48,3 +48,7 @@ permissions:
    pocketmoney.stat:
     default: true
     description: "Allows using \"/money stat\" command"
+
+   pocketmoney.grant:
+    admin: true
+    description: "Allows using \"/money grant\" command"
