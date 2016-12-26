@@ -37,10 +37,10 @@ permissions:
     default: true
     description: "Allows using \"/money create\" command"
    pocketmoney.hide:
-    default: true
+    default: op
     description: "Allows using \"/money hide\" command"
    pocketmoney.unhide:
-    default: true
+    default: op
     description: "Allows using \"/money unhide\" command"
    pocketmoney.top:
     default: true
