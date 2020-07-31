@@ -2,6 +2,8 @@
 
 namespace PocketMoney;
 
+use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
@@ -12,7 +14,7 @@ use PocketMoney\constants\PlayerType;
 use PocketMoney\event\MoneyUpdateEvent;
 use PocketMoney\event\TransactionEvent;
 
-class PocketMoney extends PluginBase
+class PocketMoney extends PluginBase implements Listener
 {
     /* @var Config */
     private $users;
@@ -61,7 +63,6 @@ class PocketMoney extends PluginBase
     public function getMoney($account)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, " \"$account\" does not exist");
         return $this->users->get($account)['money'];
     }
 
@@ -76,7 +77,6 @@ class PocketMoney extends PluginBase
     public function getType($account)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, " \"$account\" does not exist");
         return $this->users->get($account)['type'];
     }
 
@@ -91,7 +91,6 @@ class PocketMoney extends PluginBase
     public function getHide($account)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, " \"$account\" does not exist");
         return $this->users->get($account)['hide'];
     }
 
@@ -109,13 +108,10 @@ class PocketMoney extends PluginBase
     public function payMoney($sender, $receiver, $amount)
     {
         if (!is_numeric($amount) or $amount < 0) return false;
-        //return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         if (!$this->isRegistered($sender)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, " \"$sender\" does not exist");
         if (!$this->isRegistered($sender)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, " \"$receiver\" does not exist");
-        if (!$this->grantMoney($sender, -$amount)) return false;
-        if (!$this->grantMoney($receiver, +$amount)) return false;
+        if (!$this->grantMoney($sender, -$amount, false)) return false;
+        if (!$this->grantMoney($receiver, $amount, false)) return false;
         $this->getServer()->getPluginManager()->callEvent(
             new MoneyUpdateEvent(
                 $this,
@@ -153,9 +149,7 @@ class PocketMoney extends PluginBase
     public function setMoney($account, $amount)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         if (!is_numeric($amount) or $amount < 0) return false;
-        //return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         $this->users->set($account, array_merge($this->users->get($account), array("money" => $amount)));
         $this->users->save();
         $this->getServer()->getPluginManager()->callEvent(
@@ -175,23 +169,25 @@ class PocketMoney extends PluginBase
      *
      * @param string $account
      * @param int $amount
+     * @param bool $callEvent
      * @return bool
      */
-    public function grantMoney($account, $amount)
+    public function grantMoney($account, $amount, $callEvent = true)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $targetMoney = $this->getMoney($account);
         if (!is_numeric($amount) or ($targetMoney + $amount) < 0) return false;
-        //return new SimpleError(SimpleError::InvalidAmount, "Invalid amount");
         $this->users->set($account, array_merge($this->users->get($account), array("money" => $targetMoney + $amount)));
         $this->users->save();
-        $this->getServer()->getPluginManager()->callEvent(
-            new MoneyUpdateEvent(
-                $this,
-                $account,
-                $this->getMoney($account),
-                MoneyUpdateEvent::CAUSE_GRANT));
+        if ($callEvent) {
+            $this->getServer()->getPluginManager()->callEvent(
+                new MoneyUpdateEvent(
+                    $this,
+                    $account,
+                    $this->getMoney($account),
+                    MoneyUpdateEvent::CAUSE_GRANT));
+        }
+
         return true;
     }
 
@@ -208,7 +204,6 @@ class PocketMoney extends PluginBase
     public function setAccountHideMode($account, $hide)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => $hide)));
         $this->users->save();
         return true;
@@ -226,7 +221,6 @@ class PocketMoney extends PluginBase
     public function switchHideMode($account)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $hide = $this->users->get($account)['hide'];
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => !$hide)));
         $this->users->save();
@@ -245,9 +239,7 @@ class PocketMoney extends PluginBase
     public function hideAccount($account)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         if ($this->getType($account) !== PlayerType::NonPlayer) return false;
-        //return new SimpleError(SimpleError::Other, "You can hide only Non-player account");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => true)));
         $this->users->save();
         return true;
@@ -265,7 +257,6 @@ class PocketMoney extends PluginBase
     public function unhideAccount($account)
     {
         if (!$this->isRegistered($account)) return false;
-        //return new SimpleError(SimpleError::AccountNotExist, "\"$account\" does not exist");
         $this->users->set($account, array_merge($this->users->get($account), array('hide' => false)));
         $this->users->save();
         return true;
@@ -402,7 +393,7 @@ class PocketMoney extends PluginBase
         $this->saveResource("messages.yml", false);
         $this->messages = $this->parseMessages((new Config($this->getDataFolder() . "messages.yml"))->getAll());
 
-        $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+        $this->getServer()->getPluginManager()->registerEvents($this, $this);
     }
 
     public function onDisable()
@@ -798,6 +789,15 @@ class PocketMoney extends PluginBase
 
             default:
                 return false;
+        }
+    }
+
+    public function onPlayerJoin(PlayerJoinEvent $event)
+    {
+        $username = $event->getPlayer()->getName();
+        ;
+        if ($this->createAccount($username, PlayerType::Player, false, $this->getDefaultMoney()) === true) {
+            $this->getServer()->broadcastMessage("$username has been registered to PocketMoney");
         }
     }
 

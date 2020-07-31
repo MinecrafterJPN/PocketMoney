@@ -1,7 +1,7 @@
 name: "PocketMoney"
 main: "PocketMoney\\PocketMoney"
-version: 3.2.2
-api: [1.10.0]
+version: 4.0.1
+api: [1.10.0, 2.1.0]
 load: "POSTWORLD"
 author: "MinecrafterJPN"
 authors: ["MinecrafterJPN"]
